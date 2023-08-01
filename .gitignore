@@ -1,0 +1,38 @@
+HELP.md
+
+# Useless #
+.DS_Store
+
+# IntelliJ #
+.idea/
+classes/
+*.iws
+*.iml
+*.ipr
+*.ids
+
+# Eclipse #
+.classpath
+.project
+.settings/
+/bin/
+
+# Build #
+out/
+build/
+.gradle/
+
+# GWT #
+web/gwt-unitCache/*
+web/resources/gwt.*/*
+.gwt
+extras/*
+
+# Packaging temporary files #
+packaging/clients/*/builds/*
+packaging/clients/*/build/*
+
+atlassian-ide-plugin.xml
+.shelf
+
+src/test/resources/logs
