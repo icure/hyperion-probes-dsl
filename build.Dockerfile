@@ -10,7 +10,7 @@ RUN apk --no-cache add bash # for git-version plugin
 
 RUN ./gradlew -x test :publish
 
-RUN rm core/build/libs/*-plain.jar
+RUN rm build/libs/*-plain.jar
 
 FROM scratch
-COPY --from=builder /build/core/build/libs/*.jar /build/
+COPY --from=builder /build/build/libs/*.jar /build/
