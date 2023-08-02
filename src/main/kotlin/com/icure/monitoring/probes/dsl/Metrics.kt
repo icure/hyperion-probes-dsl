@@ -55,7 +55,7 @@ interface MetricFactory {
  * Measures the total time of a request.
  */
 @Serializable
-abstract class TotalTime : Metric {
+sealed class TotalTime : Metric {
     @Transient
     override val label: String = "total request time"
     @Transient

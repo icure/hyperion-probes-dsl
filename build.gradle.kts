@@ -27,7 +27,10 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
-    testImplementation(kotlin("test"))
+    testImplementation(group = "org.junit.jupiter", name = "junit-jupiter", version = "5.9.2")
+    testImplementation(group = "io.mockk", name = "mockk", version = "1.13.4")
+    testImplementation(group = "io.kotest", name = "kotest-assertions-core-jvm", version = "5.5.5")
+    testImplementation(group = "io.kotest", name = "kotest-runner-junit5", version = "5.5.5")
 }
 
 tasks.test {
