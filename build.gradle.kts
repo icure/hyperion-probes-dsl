@@ -2,26 +2,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val ktorVersion = "2.2.3"
 
-buildscript {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        maven { url = uri("https://maven.taktik.be/content/groups/public") }
-        maven { url = uri("https://repo.spring.io/plugins-release") }
-    }
-    dependencies {
-        classpath("com.taktik.gradle:gradle-plugin-git-version:2.0.4")
-        classpath("com.taktik.gradle:gradle-plugin-helm-repository:0.2.21-99208035f3")
-    }
-}
-
 plugins {
     kotlin("jvm") version "1.7.22"
     kotlin("plugin.serialization") version "1.7.20"
     id("maven-publish")
+    id("com.taktik.gradle.maven-repository") version "1.0.6"
+    id("com.taktik.gradle.git-version") version "2.0.8-gb47b2d0e35"
 }
-
-apply(plugin = "git-version")
 
 group = "com.icure"
 
@@ -45,6 +32,12 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+tasks.withType<PublishToMavenRepository> {
+    doFirst {
+        println("Artifact >>> ${project.group}:${project.name}:${project.version} <<< published to Maven repository")
+    }
 }
 
 tasks.withType<KotlinCompile> {
