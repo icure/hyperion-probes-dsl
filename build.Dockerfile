@@ -9,8 +9,3 @@ COPY . ./
 RUN apk --no-cache add bash # for git-version plugin
 
 RUN ./gradlew -x test publish
-
-RUN rm build/libs/*-plain.jar
-
-FROM scratch
-COPY --from=builder /build/build/libs/*.jar /build/
