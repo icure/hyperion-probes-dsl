@@ -1,13 +1,14 @@
 package com.icure.monitoring.probes
 
 import com.icure.monitoring.probes.dsl.ProbeConfig
-import com.icure.monitoring.utils.Aggregations
-import com.icure.monitoring.utils.DEFAULT_JSON
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 /**
  * Concrete probe that fetches and aggregates data from ElasticSearch using the provided configuration.
@@ -17,6 +18,30 @@ class ElasticProbe(
     cron: String,
     config: ProbeConfig
 ) : SchedulableProbe(cron, config) {
+
+    companion object {
+        @Serializable
+        private data class AggregationResult(
+            val value: Double
+        )
+
+        @Serializable
+        private data class Aggregations(
+            val aggregations: Map<String, AggregationResult>
+        )
+
+        @OptIn(ExperimentalSerializationApi::class)
+        private val DEFAULT_JSON: Json = Json {
+            encodeDefaults = true
+            prettyPrint = false
+            isLenient = true
+            explicitNulls = false
+            ignoreUnknownKeys=true
+            coerceInputValues=true
+            allowSpecialFloatingPointValues=true
+            allowSpecialFloatingPointValues=true
+        }
+    }
 
     private val elasticUrl: String = System.getenv("MANAGEMENT_ELASTIC_METRICS_EXPORT_HOST")
     private val elasticUsername: String = System.getenv("MANAGEMENT_ELASTIC_METRICS_EXPORT_USERNAME")
