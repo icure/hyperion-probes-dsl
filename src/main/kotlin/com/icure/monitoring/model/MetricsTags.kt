@@ -30,5 +30,7 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     ZPOOL_STORAGE_USED_SPACE_PERCENTAGE("zpool.storage.usedSpacePercentage", "zpool_storage_usedSpacePercentage"),
     ZPOOL_STORAGE_DEDUP_RATIO("zpool.storage.dedupRatio", "zpool_storage_dedupRatio"),
     ZPOOL_STORAGE_HEALTH("zpool.storage.health", "zpool_storage_health"),
-    HEALTH("health", "health")
+    HEALTH("health", "health"),
+    LOG_LEVEL("log.level", "log_level"),
+    OPERATION("operation", "operation")
 }
