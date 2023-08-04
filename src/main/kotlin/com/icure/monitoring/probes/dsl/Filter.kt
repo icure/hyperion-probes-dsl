@@ -112,6 +112,26 @@ data class OrFilter(
     }
 }
 
+/**
+ * Base interface for all the filters that are not aggregated
+ */
+@Serializable
+sealed class SimpleFilter : Filter {
+    override infix fun and(other: Filter) =
+        when(other) {
+            is AndFilter -> AndFilter(filters = other.filters + this)
+            is OrFilter -> AndFilter(filters = listOf(this, other))
+            is SimpleFilter -> AndFilter(filters = listOf(this, other))
+            else -> this
+        }
+    override infix fun or(other: Filter) =
+        when(other) {
+            is AndFilter -> OrFilter(filters = listOf(this, other))
+            is OrFilter -> OrFilter(filters = other.filters + this)
+            is SimpleFilter -> OrFilter(filters = listOf(this, other))
+            else -> this
+        }
+}
 
 /**
  * A filters that matches all the tags with the specified value.
@@ -121,29 +141,30 @@ data class OrFilter(
 data class MatchTagFilter(
     val tag: MetricsTags,
     val matchValue: String
-) : Filter {
-
-    override infix fun and(other: Filter) =
-        when(other) {
-            is AndFilter -> AndFilter(filters = other.filters + this)
-            is OrFilter -> AndFilter(filters = listOf(this, other))
-            is MatchTagFilter -> AndFilter(filters = listOf(this, other))
-            else -> this
-        }
-    override infix fun or(other: Filter) =
-        when(other) {
-            is AndFilter -> OrFilter(filters = listOf(this, other))
-            is OrFilter -> OrFilter(filters = other.filters + this)
-            is MatchTagFilter -> OrFilter(filters = listOf(this, other))
-            else -> this
-        }
+) : SimpleFilter() {
 
     override fun matches(meter: Meter.Id): Boolean = meter.tags.firstOrNull { it.key == tag.tagName }?.let {
         Regex(matchValue).find(it.value)
     } != null
     override fun toString(): String = "${tag.tagName} matches $matchValue"
     override fun toElasticQuery(): String = "\"match\":{\"${tag.queryValue}\":\"$matchValue\"}"
-
 }
 
+/**
+ * A filters that matches the metrics with the specified name.
+ * On ElasticSearch, uses the match operation.
+ */
+@Serializable
+data class MatchNameFilter(
+    val query: String
+) : SimpleFilter() {
+
+    override fun matches(meter: Meter.Id): Boolean = meter.name == query
+    override fun toString(): String = "name matches $query"
+    override fun toElasticQuery(): String = "\"match\":{\"name\":\"$query\"}"
+}
+
+
 infix fun MetricsTags.matches(value: String) = MatchTagFilter(this, value)
+
+fun metricNameIs(query: String) = MatchNameFilter(query)

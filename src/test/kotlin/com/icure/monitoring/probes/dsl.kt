@@ -8,9 +8,11 @@ import com.icure.monitoring.probes.dsl.GaugeValue
 import com.icure.monitoring.probes.dsl.JiraActionConfig
 import com.icure.monitoring.probes.dsl.LogActionConfig
 import com.icure.monitoring.probes.dsl.MaxTrigger
+import com.icure.monitoring.probes.dsl.NoOpFilter.or
 import com.icure.monitoring.probes.dsl.TotalTime
 import com.icure.monitoring.probes.dsl.Trigger
 import com.icure.monitoring.probes.dsl.matches
+import com.icure.monitoring.probes.dsl.metricNameIs
 import com.icure.monitoring.probes.dsl.probeConfig
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -83,6 +85,7 @@ class ProbeSerializationTest : StringSpec({
             }
             filter {
                 (MetricsTags.BACKEND matches "backendA") and (MetricsTags.PATH_CLASS matches "pathB")
+                or (metricNameIs("c"))
             }
             action {
                 jira {}
