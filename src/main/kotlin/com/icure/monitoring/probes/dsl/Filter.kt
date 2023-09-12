@@ -164,7 +164,20 @@ data class MatchNameFilter(
     override fun toElasticQuery(): String = "\"match\":{\"name\":\"$query\"}"
 }
 
+/**
+ * A filters that matches the metrics using a regex on a field.
+ * On ElasticSearch, uses the regexp operation.
+ */
+@Serializable
+data class NameRegexFilter(
+    val pattern: String
+) : SimpleFilter() {
+
+    override fun matches(meter: Meter.Id): Boolean = Regex(pattern).containsMatchIn(meter.name)
+    override fun toString(): String = "name matches $pattern"
+    override fun toElasticQuery(): String = "\"regexp\":{\"name\":{\"value\":\"$pattern\"}}"
+}
 
 infix fun MetricsTags.matches(value: String) = MatchTagFilter(this, value)
-
 fun metricNameIs(query: String) = MatchNameFilter(query)
+fun metricNameMatches(pattern: String) = NameRegexFilter(pattern)
