@@ -32,5 +32,6 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     ZPOOL_STORAGE_HEALTH("zpool.storage.health", "zpool_storage_health"),
     HEALTH("health", "health"),
     LOG_LEVEL("log.level", "log_level"),
-    OPERATION("operation", "operation")
+    OPERATION("operation", "operation"),
+    TCP_PORT("tcp.port", "tcp_port")
 }
