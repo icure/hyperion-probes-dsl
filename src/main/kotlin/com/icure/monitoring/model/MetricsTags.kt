@@ -33,5 +33,7 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     HEALTH("health", "health"),
     LOG_LEVEL("log.level", "log_level"),
     OPERATION("operation", "operation"),
-    TCP_PORT("tcp.port", "tcp_port")
+    TCP_PORT("tcp.port", "tcp_port"),
+    COUCHDB_TASK_TYPE("couchdb.task.type", "couchdb_task_type"),
+    COUCHDB_TASK_STATUS("couchdb.task.status", "couchdb_task_status")
 }

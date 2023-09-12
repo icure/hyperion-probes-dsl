@@ -13,6 +13,7 @@ import com.icure.monitoring.probes.dsl.TotalTime
 import com.icure.monitoring.probes.dsl.Trigger
 import com.icure.monitoring.probes.dsl.matches
 import com.icure.monitoring.probes.dsl.metricNameIs
+import com.icure.monitoring.probes.dsl.metricNameMatches
 import com.icure.monitoring.probes.dsl.probeConfig
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -41,7 +42,7 @@ class ProbeSerializationTest : StringSpec({
     "Can serialize a Jira action config with the generic serializer" {
         val exampleDuration = JiraActionConfig().apply { autoCloseAfter = Duration.ofDays(1) } as ActionConfig<ActionPayload>
         val encoded = Json.encodeToString(exampleDuration)
-        val decoded = Json.decodeFromString<ActionConfig<ActionPayload>>(encoded)
+       Json.decodeFromString<ActionConfig<ActionPayload>>(encoded)
     }
 
     "Can serialize a log action config" {
@@ -54,7 +55,7 @@ class ProbeSerializationTest : StringSpec({
     "Can serialize metrics" {
         val gaugeMetric = GaugeValue()
         val encoded = Json.encodeToString(gaugeMetric)
-        val decoded = Json.decodeFromString<GaugeValue>(encoded)
+        Json.decodeFromString<GaugeValue>(encoded)
     }
 
     "Can serialize a trigger" {
@@ -85,7 +86,7 @@ class ProbeSerializationTest : StringSpec({
             }
             filter {
                 (MetricsTags.BACKEND matches "backendA") and (MetricsTags.PATH_CLASS matches "pathB")
-                or (metricNameIs("c"))
+                or (metricNameIs("c")) or metricNameMatches(".*")
             }
             action {
                 jira {}
