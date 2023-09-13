@@ -66,7 +66,8 @@ class JiraActionConfig : ActionConfig<JiraActionPayload>() {
     override fun generatePayload(trigger: Trigger, actualValue: Double, probeConfig: ProbeConfig): JiraActionPayload = JiraActionPayload(
         probeId = probeConfig.probeId,
         title = buildString {
-            append(trigger.label.replaceFirstChar { it.uppercaseChar() })
+            append("${probeConfig.description}: ")
+            append(trigger.label)
             append(" ${trigger.metric.label} was ${trigger.activationCondition.label} ${trigger.threshold}")
         },
         description = buildString {
