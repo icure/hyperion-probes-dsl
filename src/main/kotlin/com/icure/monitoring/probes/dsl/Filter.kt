@@ -178,6 +178,22 @@ data class NameRegexFilter(
     override fun toElasticQuery(): String = "\"regexp\":{\"name\":{\"value\":\"$pattern\"}}"
 }
 
+/**
+ * A filters that matches the type of metric.
+ * On ElasticSearch, uses the matches operation.
+ */
+@Serializable
+data class TypeMatchFilter(
+    val type: String
+) : SimpleFilter() {
+
+    override fun matches(meter: Meter.Id): Boolean = meter.type.toString().lowercase() == type
+    override fun toString(): String = "type is $type"
+    override fun toElasticQuery(): String = "\"match\":{\"type\":\"$type\"}"
+}
+
 infix fun MetricsTags.matches(value: String) = MatchTagFilter(this, value)
 fun metricNameIs(query: String) = MatchNameFilter(query)
 fun metricNameMatches(pattern: String) = NameRegexFilter(pattern)
+fun metricIsAGauge() = TypeMatchFilter("gauge")
+fun metricIsADistribution() = TypeMatchFilter("distribution_summary")

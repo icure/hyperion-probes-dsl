@@ -1,7 +1,6 @@
 package com.icure.monitoring.probes.dsl
 
 import com.icure.monitoring.meters.BucketMeter
-import com.icure.monitoring.model.MetricsTags
 import io.micrometer.core.instrument.DistributionSummary
 import io.micrometer.core.instrument.Gauge
 import io.micrometer.core.instrument.Meter
@@ -18,11 +17,6 @@ data class MetricValue(
  */
 @Serializable
 sealed interface Metric {
-    /**
-     * An additional [Filter] that could be required to identify the metric. Must be specified at compile time.
-     */
-    val identifier: Filter
-
     /**
      * A descriptor used for visualization purposes.
      */
@@ -52,27 +46,25 @@ interface MetricFactory {
 }
 
 /**
- * Measures the total time of a request.
+ * Extracts the aggregated values from a distribution summary
  */
 @Serializable
-sealed class TotalTime : Metric {
+sealed class DistributionSummaryValue : Metric {
     @Transient
-    override val label: String = "total request time"
-    @Transient
-    override val identifier: Filter = (MetricsTags.METRIC matches "totalTime") and (MetricsTags.TYPE matches "distribution_summary")
+    override val label: String = "distribution summary"
 
     companion object: MetricFactory {
-       override fun forMaxAggregation() = MaxTotalTime()
-       override fun forAverageAggregation() = AverageTotalTime()
-       override fun forCountAggregation() = CountTotalTime()
+       override fun forMaxAggregation() = MaxOfDistributionSummary()
+       override fun forAverageAggregation() = AverageOfDistributionSummary()
+       override fun forCountAggregation() = CountOfDistributionSummary()
     }
 }
 
 /**
- * Maximum of request total time
+ * Maximum value of a distribution summary
  */
 @Serializable
-class MaxTotalTime : TotalTime() {
+class MaxOfDistributionSummary : DistributionSummaryValue() {
     @Transient
     override val field = "max"
     override fun value(meter: Meter): MetricValue? = if(meter is DistributionSummary) {
@@ -84,10 +76,10 @@ class MaxTotalTime : TotalTime() {
 }
 
 /**
- * Average of request total time
+ * Average value of a distribution summary
  */
 @Serializable
-class AverageTotalTime : TotalTime() {
+class AverageOfDistributionSummary : DistributionSummaryValue() {
     @Transient
     override val field = "mean"
     override fun value(meter: Meter): MetricValue? = if(meter is DistributionSummary) {
@@ -99,37 +91,12 @@ class AverageTotalTime : TotalTime() {
 }
 
 /**
- * Number of times the Total Time is registered.
+ * Number of times the distribution summary is registered.
  */
 @Serializable
-class CountTotalTime : TotalTime() {
+class CountOfDistributionSummary : DistributionSummaryValue() {
     @Transient
     override val field = "count"
-    override fun value(meter: Meter): MetricValue? = if(meter is DistributionSummary) {
-        MetricValue(
-            if(meter is BucketMeter<*>) meter.getTimestamps().maxOrNull() else null,
-            meter.takeSnapshot().count().toDouble()
-        )
-    } else null
-}
-
-/**
- * Counts the number of requests to the system.
- */
-@Serializable
-class RequestCount : Metric {
-    @Transient
-    override val label: String = "request count"
-    @Transient
-    override val identifier: Filter = (MetricsTags.METRIC matches "totalTime") and (MetricsTags.TYPE matches "distribution_summary")
-    @Transient
-    override val field = "count"
-
-    companion object: MetricFactory {
-        override fun forMaxAggregation() = RequestCount()
-        override fun forAverageAggregation() = RequestCount()
-        override fun forCountAggregation() = RequestCount()
-    }
     override fun value(meter: Meter): MetricValue? = if(meter is DistributionSummary) {
         MetricValue(
             if(meter is BucketMeter<*>) meter.getTimestamps().maxOrNull() else null,
@@ -145,8 +112,6 @@ class RequestCount : Metric {
 class GaugeValue : Metric {
     @Transient
     override val label = "value"
-    @Transient
-    override val identifier: Filter = MetricsTags.TYPE matches "gauge"
     @Transient
     override val field: String = "value"
 

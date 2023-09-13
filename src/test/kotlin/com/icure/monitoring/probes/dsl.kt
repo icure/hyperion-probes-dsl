@@ -4,12 +4,12 @@ import com.icure.monitoring.actions.payload.ActionPayload
 import com.icure.monitoring.model.LogLevel
 import com.icure.monitoring.model.MetricsTags
 import com.icure.monitoring.probes.dsl.ActionConfig
+import com.icure.monitoring.probes.dsl.DistributionSummaryValue
 import com.icure.monitoring.probes.dsl.GaugeValue
 import com.icure.monitoring.probes.dsl.JiraActionConfig
 import com.icure.monitoring.probes.dsl.LogActionConfig
 import com.icure.monitoring.probes.dsl.MaxTrigger
 import com.icure.monitoring.probes.dsl.NoOpFilter.or
-import com.icure.monitoring.probes.dsl.TotalTime
 import com.icure.monitoring.probes.dsl.Trigger
 import com.icure.monitoring.probes.dsl.matches
 import com.icure.monitoring.probes.dsl.metricNameIs
@@ -81,7 +81,7 @@ class ProbeSerializationTest : StringSpec({
             }
             trigger {
                 average {
-                    TotalTime over Duration.ofMinutes(1)
+                    DistributionSummaryValue over Duration.ofMinutes(1)
                 } greaterThan 0.0
             }
             filter {

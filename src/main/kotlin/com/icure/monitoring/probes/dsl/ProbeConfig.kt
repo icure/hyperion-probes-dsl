@@ -2,11 +2,9 @@ package com.icure.monitoring.probes.dsl
 
 import com.icure.monitoring.probes.Probe
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.UUID
-import javax.xml.crypto.Data
 import kotlin.IllegalStateException
 
 /**

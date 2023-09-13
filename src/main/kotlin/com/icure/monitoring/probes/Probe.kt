@@ -16,7 +16,7 @@ open class Probe(
     val id = config.probeId
     val description = config.description
     val actions: List<ActionConfig<*>> = config.actions
-    val filter = config.filter and config.definedTrigger.metric.identifier
+    val filter = config.filter
     val trigger = config.definedTrigger
 
     companion object {
