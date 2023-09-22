@@ -83,7 +83,7 @@ abstract class Trigger {
     /**
      * Given a collection of [HistogramBucket] calculates the metric aggregation as defined in the DSL.
      */
-    abstract fun calculateCurrentLevel(input: Collection<HistogramBucket>): Double?
+    abstract fun calculateCurrentLevel(input: Collection<Meter>): Double?
 
     /**
      * Converts the current trigger condition to an ElasticSearch aggregation.
@@ -91,7 +91,13 @@ abstract class Trigger {
     abstract fun toElasticAggregation(): String
 
     /**
-     * Extracts the value specified by the metric from a [Meter].
+     * Extracts the value from a [Meter] using the strategy defined by the concrete implementation of the [Metric]
+     * defined in this trigger.
+     * Note: this should return the value for a single meter. Aggregating the different values is then a responsibility
+     * of the specific implementation of the trigger.
+     *
+     * @param meter the [Meter] where to extract the value
+     * @return an instance of [MetricValue] or null if the operation failed
      */
     fun extractValueFromMeter(meter: Meter): MetricValue? = metric.value(meter)
 
@@ -131,7 +137,7 @@ abstract class Trigger {
 class MaxTrigger: Trigger() {
     override val label = "max of"
     override fun checkThreshold(value: Double): Boolean = activationCondition.condition(value, threshold)
-    override fun calculateCurrentLevel(input: Collection<HistogramBucket>): Double? = input.maxOfOrNull { it.max }
+    override fun calculateCurrentLevel(input: Collection<Meter>): Double? = input.maxOfOrNull { it.max }
     override fun toElasticAggregation(): String = "{\"max\":{\"field\":\"${metric.field}\"}}"
 }
 

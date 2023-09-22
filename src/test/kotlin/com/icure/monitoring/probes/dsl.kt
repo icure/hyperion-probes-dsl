@@ -6,6 +6,7 @@ import com.icure.monitoring.model.MetricsTags
 import com.icure.monitoring.probes.dsl.ActionConfig
 import com.icure.monitoring.probes.dsl.DistributionSummaryValue
 import com.icure.monitoring.probes.dsl.GaugeValue
+import com.icure.monitoring.probes.dsl.GenericMeterFilter
 import com.icure.monitoring.probes.dsl.JiraActionConfig
 import com.icure.monitoring.probes.dsl.LogActionConfig
 import com.icure.monitoring.probes.dsl.MaxTrigger
@@ -86,7 +87,9 @@ class ProbeSerializationTest : StringSpec({
             }
             filter {
                 (MetricsTags.BACKEND matches "backendA") and (MetricsTags.PATH_CLASS matches "pathB")
-                or (metricNameIs("c")) or metricNameMatches(".*")
+                or (metricNameIs("c")) or metricNameMatches(".*") or GenericMeterFilter {
+                    it.id.name == "bo"
+                }
             }
             action {
                 jira {}
