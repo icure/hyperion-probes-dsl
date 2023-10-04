@@ -3,8 +3,6 @@ package com.icure.monitoring.probes.dsl
 import com.icure.monitoring.probes.ElasticProbe
 import com.icure.monitoring.probes.Probe
 import com.icure.monitoring.probes.RegistryProbe
-import com.icure.monitoring.probes.dsl.serialization.GenericDataSourceSerializer
-import com.icure.monitoring.probes.dsl.serialization.RegistryDataSourceSerializer
 import kotlinx.serialization.Serializable
 import java.time.Duration
 
@@ -15,7 +13,6 @@ annotation class DataSourceScope
 /**
  * Base class to configure a datasource for a probe.
  */
-@Serializable(with = GenericDataSourceSerializer::class)
 abstract class DataSource {
 
     companion object {
@@ -42,7 +39,6 @@ abstract class DataSource {
 
 }
 
-@Serializable(with = RegistryDataSourceSerializer::class)
 @DataSourceScope
 class RegistryDataSource : DataSource() {
     /**
