@@ -1,6 +1,6 @@
 package com.icure.monitoring.probes.dsl.collectors
 
-import com.icure.monitoring.test.FakeClock
+import com.icure.monitoring.test.fake.FakeClock
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import java.time.Duration

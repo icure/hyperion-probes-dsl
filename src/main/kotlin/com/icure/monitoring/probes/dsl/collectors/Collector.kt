@@ -5,7 +5,7 @@ package com.icure.monitoring.probes.dsl.collectors
  * Concrete implementation will store the values from the meters according to different strategies and will provide
  * them to the aggregators.
  */
-interface Collector {
+sealed interface Collector {
 
     /**
      * Registers a new value extracted from a meter to the collector.

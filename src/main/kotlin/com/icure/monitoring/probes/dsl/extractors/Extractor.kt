@@ -1,0 +1,55 @@
+package com.icure.monitoring.probes.dsl.extractors
+
+import com.icure.monitoring.exceptions.UnsupportedDataSourceException
+import io.micrometer.core.instrument.Meter
+
+/**
+ * An [Extractor] is a component of the probe that returns the value of a [Meter] according to the criteria defined
+ * by its concrete implementations.
+ */
+sealed interface Extractor {
+    /**
+     * A descriptor of the field to use in ElasticSearch aggregations.
+     */
+    val field: String
+
+    /**
+     * Extracts the metrics from a [Meter].
+     *
+     * @param meter the [Meter] to extract the value from.
+     * @return the value of the [Meter] as a [Double] or null.
+     */
+    fun value(meter: Meter): Double?
+}
+
+/**
+ * Factory method that instantiates different implementation of an [Extractor] based on the aggregator to apply.
+ */
+interface ExtractorFactory {
+    fun forMaxAggregator(): Extractor
+    fun forAverageAggregator(): Extractor
+    fun forCountAggregator(): Extractor
+}
+
+/**
+ * Utility function to easily define a [CustomExtractor].
+ *
+ * @param block the extraction logic, a function that takes a [Meter] as input and return a [Double] if a value can be
+ * extracted form that meter.
+ * @return a [CustomExtractor].
+ */
+fun extractor(block: (meter: Meter) -> Double?) = CustomExtractor(block)
+
+/**
+ * [Extractor] that implements a custom logic.
+ * Note: this cannot be used only with a registry datasource.
+ */
+class CustomExtractor(
+    private val extractorFunction: (meter: Meter) -> Double?
+) : Extractor {
+
+    override val field: String =
+        throw UnsupportedDataSourceException("This extractor is not compatible with a remote ES datasource.")
+
+    override fun value(meter: Meter): Double? = extractorFunction(meter)
+}

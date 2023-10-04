@@ -1,4 +1,4 @@
-package com.icure.monitoring.test
+package com.icure.monitoring.test.fake
 
 import io.micrometer.core.instrument.Clock
 
