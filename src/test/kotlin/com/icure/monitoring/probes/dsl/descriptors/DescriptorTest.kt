@@ -14,7 +14,7 @@ class DescriptorTest : StringSpec({
         val name = uuid()
         val meter = generateMeter(name)
 
-        byName(meter) shouldBe name
+        byName(meter) shouldBe DescriptorElement("name", name)
     }
 
     "the byTag descriptor can extract the tag value from a meter" {
@@ -22,24 +22,25 @@ class DescriptorTest : StringSpec({
         val tagValue = uuid()
         val meter = generateMeter(tags = listOf(Tag.of(tagType.tagName, tagValue)))
 
-        byTag(tagType)(meter) shouldBe tagValue
+        byTag(tagType)(meter) shouldBe DescriptorElement(tagType.tagName, tagValue)
     }
 
     "the byTag descriptor will return the default value if the specified tag is not present" {
         val meter = generateMeter()
 
-        byTag(MetricsTags.METRIC)(meter) shouldBe NO_TAG
+        byTag(MetricsTags.METRIC)(meter) shouldBe DescriptorElement(MetricsTags.METRIC.tagName, NO_TAG)
     }
 
     "is it possible to define custom descriptors" {
+        val descriptorKey = uuid()
         val customDescriptor = descriptor {
-            "${it.id.name}&${it.id.type}"
+            DescriptorElement(descriptorKey, "${it.id.name}&${it.id.type}")
         }
         val name = uuid()
         val type = Meter.Type.DISTRIBUTION_SUMMARY
         val meter = generateMeter(name, type = type)
 
-        customDescriptor(meter) shouldBe "$name&$type"
+        customDescriptor(meter) shouldBe DescriptorElement(descriptorKey, "$name&$type")
     }
 
 })

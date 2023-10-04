@@ -12,5 +12,8 @@ const val NO_TAG = "NO_TAG"
  * @return a [Descriptor].
  */
 fun byTag(tag: MetricsTags): Descriptor = { meter ->
-    meter.id.tags.firstOrNull { it.key == tag.tagName }?.value ?: NO_TAG
+    DescriptorElement(
+        tag.tagName,
+        meter.id.tags.firstOrNull { it.key == tag.tagName }?.value ?: NO_TAG
+    )
 }
