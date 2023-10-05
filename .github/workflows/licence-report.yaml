@@ -34,9 +34,6 @@ jobs:
       - name: Echo
         run: cat ./${{ github.event.repository.name }}.csv
 
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
       - name: Setup Git
         run: |
           git config user.name "icure-dev"
@@ -46,7 +43,7 @@ jobs:
         run: |
           echo "${{ secrets.REPO_DEPLOY_KEY }}" >> deployKey.txt
           chmod 0600 deployKey.txt
-          GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i deployKey.txt' git clone git@github.com:icure/licenses-report.git"
+          GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i deployKey.txt' git clone git@github.com:icure/licenses-report.git
           cd licenses-report
           mv ../${{ github.event.repository.name }}.csv ./${{ github.event.repository.name }}.csv
           git add ./${{ github.event.repository.name }}.csv
