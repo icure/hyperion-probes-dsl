@@ -28,8 +28,8 @@ jobs:
           ORG_GRADLE_PROJECT_repoPassword: ${{ secrets.REPO_PASSWORD }}
         run: ./gradlew generateLicenseReport -x build
 
-      - name: Copy and rename
-        run: cp ./build/reports/dependency-license/licenses.csv ./${{ github.event.repository.name }}.csv
+      - name: Copy, rename, and remove header
+        run: tail -n +2 ./build/reports/dependency-license/licenses.csv > ./${{ github.event.repository.name }}.csv
 
       - name: Setup Git
         run: |
@@ -47,8 +47,6 @@ jobs:
         env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         run: |
-          echo "${{ secrets.REPO_DEPLOY_KEY }}" >> deployKey.txt
-          chmod 0600 deployKey.txt
           git clone git@github.com:icure/licenses-report.git
           cd licenses-report
           mv ../${{ github.event.repository.name }}.csv ./java_kotlin/${{ github.event.repository.name }}.csv
