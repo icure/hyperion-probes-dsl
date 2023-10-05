@@ -1,0 +1,54 @@
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    types:
+      - closed
+    branches:
+      - 'main'
+
+jobs:
+  licenses_report:
+    name: Generating licenses report
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+
+      - name: Creating licenses report
+        run: ./gradlew generateLicenseReport
+
+      - name: Copy and rename
+        run: cp ./build/licenses.csv ./${{ github.event.repository.name }}.csv
+
+      - name: Echo
+        run: cat ./${{ github.event.repository.name }}.csv
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Setup Git
+        run: |
+          git config user.name "icure-dev"
+          git config user.email "dev@icure.com"
+
+      - name: Publish file to licenses-report
+        run: |
+          echo "${{ secrets.REPO_DEPLOY_KEY }}" >> deployKey.txt
+          chmod 0600 deployKey.txt
+          GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i deployKey.txt' git clone git@github.com:icure/licenses-report.git"
+          cd licenses-report
+          mv ../${{ github.event.repository.name }}.csv ./${{ github.event.repository.name }}.csv
+          git add ./${{ github.event.repository.name }}.csv
+          STATUS=$(git status --porcelain)
+          if [ -n "$STATUS" ]; then
+            GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i ../deployKey.txt' git commit -m "Update file.txt"
+            GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i ../deployKey.txt' git push licenses-report HEAD:main
+          fi

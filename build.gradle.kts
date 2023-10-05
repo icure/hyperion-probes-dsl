@@ -1,3 +1,5 @@
+import com.github.jk1.license.render.CsvReportRenderer
+import com.github.jk1.license.render.ReportRenderer
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val ktorVersion = "2.2.3"
@@ -8,6 +10,11 @@ plugins {
     id("maven-publish")
     id("com.taktik.gradle.maven-repository") version "1.0.6"
     id("com.taktik.gradle.git-version") version "2.0.8-gb47b2d0e35"
+    id("com.github.jk1.dependency-license-report") version "2.0"
+}
+
+licenseReport {
+    renderers = arrayOf<ReportRenderer>(CsvReportRenderer())
 }
 
 group = "com.icure"
