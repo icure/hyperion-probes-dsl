@@ -34,15 +34,12 @@ jobs:
       - name: Echo
         run: cat ./${{ github.event.repository.name }}.csv
 
-      - name: Setup Git
-        run: |
-          git config user.name "icure-dev"
-          git config user.email "dev@icure.com"
-
       - name: Publish file to licenses-report
         run: |
           echo "${{ secrets.REPO_DEPLOY_KEY }}" >> deployKey.txt
           chmod 0600 deployKey.txt
+          GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i deployKey.txt' git config user.name "icure-dev"
+          GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i deployKey.txt' git config user.email "dev@icure.com"
           GIT_SSH_COMMAND='ssh -o StrictHostKeyChecking=no -i deployKey.txt' git clone git@github.com:icure/licenses-report.git
           cd licenses-report
           mv ../${{ github.event.repository.name }}.csv ./${{ github.event.repository.name }}.csv
