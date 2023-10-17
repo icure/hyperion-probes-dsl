@@ -29,8 +29,7 @@ class NoOpFilterTest : StringSpec({
         val compositeFilter = metricNameIs(name) or NoOpFilter
 
         compositeFilter shouldMatch generateMeter(name, listOf(Tag.of(MetricsTags.METRIC.tagName, uuid())))
-        compositeFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, uuid())))
-        compositeFilter shouldMatch generateMeter()
+        compositeFilter shouldNotMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, uuid())))
     }
 
 })

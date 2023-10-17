@@ -19,7 +19,7 @@ sealed interface Extractor {
      * @param meter the [Meter] to extract the value from.
      * @return the value of the [Meter] as a [Double] or null.
      */
-    fun value(meter: Meter): Double?
+    fun valueOf(meter: Meter): Double?
 }
 
 /**
@@ -29,6 +29,13 @@ interface ExtractorFactory {
     fun forMaxAggregator(): Extractor
     fun forAverageAggregator(): Extractor
     fun forCountAggregator(): Extractor
+}
+
+/**
+ * An interface that instantiate a single implementation of an [Extractor]. It is useful to keep the DSL coherent.
+ */
+interface SingleExtractorFactory {
+    fun getExtractor(): Extractor
 }
 
 /**
@@ -48,8 +55,8 @@ class CustomExtractor(
     private val extractorFunction: (meter: Meter) -> Double?
 ) : Extractor {
 
-    override val field: String =
-        throw UnsupportedDataSourceException("This extractor is not compatible with a remote ES datasource.")
+    override val field: String
+        get() = throw UnsupportedDataSourceException("This extractor is not compatible with a remote ES datasource.")
 
-    override fun value(meter: Meter): Double? = extractorFunction(meter)
+    override fun valueOf(meter: Meter): Double? = extractorFunction(meter)
 }

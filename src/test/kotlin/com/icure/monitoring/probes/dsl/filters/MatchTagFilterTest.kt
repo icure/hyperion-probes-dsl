@@ -22,7 +22,7 @@ class MatchTagFilterTest : StringSpec({
     "A MatchTagFilter can be combined with other filters through and" {
         val name = uuid()
         val tagType = MetricsTags.METRIC
-        val tagValue = "[0-9]{5}"
+        val tagValue = "^[0-9]{5}$"
         val compositeFilter = metricNameIs(name) and (tagType matches tagValue)
 
         compositeFilter shouldMatch generateMeter(name, listOf(Tag.of(MetricsTags.METRIC.tagName, "12345")))
@@ -34,7 +34,7 @@ class MatchTagFilterTest : StringSpec({
     "A MatchTagFilter can be combined with other filters through or" {
         val name = uuid()
         val tagType = MetricsTags.METRIC
-        val tagValue = "[0-9]{5}"
+        val tagValue = "^[0-9]{5}$"
         val compositeFilter = metricNameIs(name) or (tagType matches tagValue)
 
         compositeFilter shouldMatch generateMeter(name, listOf(Tag.of(MetricsTags.METRIC.tagName, "12345")))

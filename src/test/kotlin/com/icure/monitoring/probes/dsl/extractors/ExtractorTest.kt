@@ -28,8 +28,8 @@ class ExtractorTest : StringSpec({
             else null
         }
 
-        customExtractor.value(gauge) shouldBe gaugeValue*2
-        customExtractor.value(ds).shouldBeNull()
+        customExtractor.valueOf(gauge) shouldBe gaugeValue*2
+        customExtractor.valueOf(ds).shouldBeNull()
     }
 
 })

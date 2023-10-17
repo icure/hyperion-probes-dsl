@@ -11,7 +11,7 @@ import io.micrometer.core.instrument.Tag
 class NameRegexFilterTest : StringSpec({
 
     "A NameRegexFilter should match only the meters that match the condition" {
-        val pattern = "[a-z]{3,5}"
+        val pattern = "^[a-z]{3,5}$"
         val filter = NameRegexFilter(pattern)
 
         filter shouldMatch generateMeter("match")
@@ -19,7 +19,7 @@ class NameRegexFilterTest : StringSpec({
     }
 
     "A NameRegexFilter can be combined with other filters through and" {
-        val pattern = "[a-z]{3,5}"
+        val pattern = "^[a-z]{3,5}$"
         val tagValue = uuid()
         val compositeFilter = metricNameMatches(pattern) and MatchTagFilter(MetricsTags.METRIC, tagValue)
 
@@ -30,7 +30,7 @@ class NameRegexFilterTest : StringSpec({
     }
 
     "A NameRegexFilter can be combined with other filters through or" {
-        val pattern = "[a-z]{3,5}"
+        val pattern = "^[a-z]{3,5}$"
         val tagValue = uuid()
         val compositeFilter = metricNameMatches(pattern) or MatchTagFilter(MetricsTags.METRIC, tagValue)
 

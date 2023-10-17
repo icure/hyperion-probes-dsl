@@ -1,10 +1,10 @@
-package com.icure.monitoring.probes.dsl
+package com.icure.monitoring.probes.dsl.data
 
 import com.icure.monitoring.probes.ElasticProbe
 import com.icure.monitoring.probes.Probe
 import com.icure.monitoring.probes.RegistryProbe
+import com.icure.monitoring.probes.dsl.ProbeConfig
 import kotlinx.serialization.Serializable
-import java.time.Duration
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
@@ -46,13 +46,7 @@ class RegistryDataSource : DataSource() {
      */
     lateinit var registryId: String
 
-    /**
-     * The sampling window is used to aggregate the results coming from the registry. It is a fixed window of time
-     * and not a moving window.
-     */
-    var samplingWindow: Duration = Duration.ofSeconds(60)
-
-    override fun createProbe(config: ProbeConfig) = RegistryProbe(registryId, samplingWindow, config)
+    override fun createProbe(config: ProbeConfig) = RegistryProbe(registryId, config)
 }
 
 @Serializable

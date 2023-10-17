@@ -20,8 +20,8 @@ class GaugeExtractorTest : StringSpec({
             gaugeValue
         ) { gaugeValue }
 
-        val maxOfGauge = GaugeValue.forMaxAggregator()
-        maxOfGauge.value(gauge) shouldBe gaugeValue
+        val maxOfGauge = GaugeExtractor.forMaxAggregator()
+        maxOfGauge.valueOf(gauge) shouldBe gaugeValue
     }
 
     "A GaugeExtractor can get the average from a gauge" {
@@ -32,8 +32,8 @@ class GaugeExtractorTest : StringSpec({
             gaugeValue
         ) { gaugeValue }
 
-        val averageOfGauge = GaugeValue.forAverageAggregator()
-        averageOfGauge.value(gauge) shouldBe gaugeValue
+        val averageOfGauge = GaugeExtractor.forAverageAggregator()
+        averageOfGauge.valueOf(gauge) shouldBe gaugeValue
     }
 
     "A GaugeExtractor returns 1 when counting a gauge" {
@@ -44,19 +44,19 @@ class GaugeExtractorTest : StringSpec({
             gaugeValue
         ) { gaugeValue }
 
-        val countOfGauge = GaugeValue.forCountAggregator()
-        countOfGauge.value(gauge) shouldBe 1.0
+        val countOfGauge = GaugeExtractor.forCountAggregator()
+        countOfGauge.valueOf(gauge) shouldBe 1.0
     }
 
     "All GaugeExtractors return null when a meter that is not a gauge is passed" {
         val ds = FakeDistributionSummary()
 
-        val maxOfGauge = GaugeValue.forMaxAggregator()
-        val averageOfGauge = GaugeValue.forAverageAggregator()
-        val countOfGauge = GaugeValue.forCountAggregator()
-        maxOfGauge.value(ds).shouldBeNull()
-        averageOfGauge.value(ds).shouldBeNull()
-        countOfGauge.value(ds).shouldBeNull()
+        val maxOfGauge = GaugeExtractor.forMaxAggregator()
+        val averageOfGauge = GaugeExtractor.forAverageAggregator()
+        val countOfGauge = GaugeExtractor.forCountAggregator()
+        maxOfGauge.valueOf(ds).shouldBeNull()
+        averageOfGauge.valueOf(ds).shouldBeNull()
+        countOfGauge.valueOf(ds).shouldBeNull()
     }
 
 })

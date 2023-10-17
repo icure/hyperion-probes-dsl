@@ -42,7 +42,7 @@ class GenericMeterFilterTest : StringSpec({
         compositeFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldMatch generateMeter("${uuid()}-suffix", listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, uuid())))
-        compositeFilter shouldNotMatch generateMeter()
+        compositeFilter shouldNotMatch generateMeter("${uuid()}-suffix")
     }
 
 })

@@ -18,7 +18,7 @@ class DistributionSummaryExtractorTest : StringSpec({
             ds.record(it)
         }
         val maxOfDs = DistributionSummaryExtractor.forMaxAggregator()
-        maxOfDs.value(ds) shouldBe values.max()
+        maxOfDs.valueOf(ds) shouldBe values.max()
     }
 
     "A DistributionSummaryExtractor can get the average from a distribution summary" {
@@ -27,7 +27,7 @@ class DistributionSummaryExtractorTest : StringSpec({
             ds.record(it)
         }
         val averageOfDs = DistributionSummaryExtractor.forAverageAggregator()
-        averageOfDs.value(ds) shouldBe values.average()
+        averageOfDs.valueOf(ds) shouldBe values.average()
     }
 
     "A DistributionSummaryExtractor can get the count from a distribution summary" {
@@ -36,7 +36,7 @@ class DistributionSummaryExtractorTest : StringSpec({
             ds.record(it)
         }
         val countOfDs = DistributionSummaryExtractor.forCountAggregator()
-        countOfDs.value(ds) shouldBe values.size
+        countOfDs.valueOf(ds) shouldBe values.size
     }
 
     "All DistributionSummaryExtractors return null if the meter passed as parameter is not a distribution summary" {
@@ -50,9 +50,9 @@ class DistributionSummaryExtractorTest : StringSpec({
         val maxOfDs = DistributionSummaryExtractor.forMaxAggregator()
         val averageOfDs = DistributionSummaryExtractor.forAverageAggregator()
         val countOfDs = DistributionSummaryExtractor.forCountAggregator()
-        maxOfDs.value(gauge).shouldBeNull()
-        averageOfDs.value(gauge).shouldBeNull()
-        countOfDs.value(gauge).shouldBeNull()
+        maxOfDs.valueOf(gauge).shouldBeNull()
+        averageOfDs.valueOf(gauge).shouldBeNull()
+        countOfDs.valueOf(gauge).shouldBeNull()
     }
 
 })

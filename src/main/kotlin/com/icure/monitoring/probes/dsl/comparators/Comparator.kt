@@ -9,8 +9,3 @@ typealias ThresholdValue = Double
  * The first value is the value produced by the aggregator, the second is a threshold to compare with.
  */
 typealias Comparator = (Double, ThresholdValue) -> Boolean
-
-/**
- * Utility function to easily define a [Comparator].
- */
-fun comparator(block: Comparator) = block

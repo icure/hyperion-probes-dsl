@@ -18,22 +18,38 @@ sealed class DistributionSummaryExtractor : Extractor {
  * Extracts the maximum from a [DistributionSummary].
  */
 class MaxOfDistributionSummary : DistributionSummaryExtractor() {
+
+    companion object: SingleExtractorFactory {
+        override fun getExtractor(): Extractor = MaxOfDistributionSummary()
+    }
+
     override val field = "max"
-    override fun value(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().max() else null
+    override fun valueOf(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().max() else null
 }
 
 /**
  * Extracts the average value from a [DistributionSummary].
  */
 class AverageOfDistributionSummary : DistributionSummaryExtractor() {
+
+    companion object: SingleExtractorFactory {
+        override fun getExtractor(): Extractor = AverageOfDistributionSummary()
+    }
+
+
     override val field = "mean"
-    override fun value(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().mean() else null
+    override fun valueOf(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().mean() else null
 }
 
 /**
  * Extracts the number of values registered in a [DistributionSummary].
  */
 class CountOfDistributionSummary : DistributionSummaryExtractor() {
+
+    companion object: SingleExtractorFactory {
+        override fun getExtractor(): Extractor = CountOfDistributionSummary()
+    }
+
     override val field = "count"
-    override fun value(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().count().toDouble() else null
+    override fun valueOf(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().count().toDouble() else null
 }

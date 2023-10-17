@@ -12,14 +12,14 @@ class FixedSizeCollector(
     private val windowSize: Int
 ): Collector {
 
-    private val queue = mutableListOf<Double>()
+    private var queue = mutableListOf<Double>()
     private val queueMutex = Mutex()
 
     override suspend fun addValue(value: Double) {
         queueMutex.withLock {
             queue.add(value)
             if(queue.size > windowSize) {
-                queue.drop(queue.size - windowSize)
+                queue = queue.drop(queue.size - windowSize).toMutableList()
             }
         }
     }

@@ -30,7 +30,7 @@ class TimeWindowCollector(
 ) : Collector {
 
     private val sampledTimeFrame = timeFrame.toMillis() / samplingDuration.toMillis()
-    private val samplingDurationMillis = samplingDuration.toMillis()
+    val samplingDurationMillis = samplingDuration.toMillis()
     private val layout = LogQuadraticLayout.create(10.0, 1e-2, 0.0, 1e9)
     private val buckets = mutableMapOf<Long, HistogramBucket>()
     private val bucketsMutex = Mutex()
@@ -41,11 +41,14 @@ class TimeWindowCollector(
             buckets.getOrPut(currentIndex) {
                 HistogramBucket.create(layout)
             }.addValue(value)
-            buckets.forEach { (k, _) ->
-                if(k < (currentIndex - sampledTimeFrame)) {
-                    buckets.remove(k)
-                }
+            val indicesToRemove = buckets.mapNotNull { (k, _) ->
+                if(k < (currentIndex - sampledTimeFrame)) k
+                else null
             }
+            indicesToRemove.forEach {
+                buckets.remove(it)
+            }
+
         }
     }
 

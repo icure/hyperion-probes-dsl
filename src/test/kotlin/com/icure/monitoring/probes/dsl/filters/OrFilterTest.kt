@@ -46,35 +46,33 @@ class OrFilterTest : StringSpec({
             listOf(
                 Tag.of(MetricsTags.METRIC.tagName, tagValue1),
                 Tag.of(MetricsTags.BACKEND.tagName, tagValue2),
-                Tag.of(MetricsTags.TYPE.tagName, tagValue3),
+                Tag.of(MetricsTags.TYPE.tagName, tagValue3)
             ))
         andFilter shouldMatch generateMeter(
             filterName,
             listOf(
                 Tag.of(MetricsTags.METRIC.tagName, uuid()),
                 Tag.of(MetricsTags.BACKEND.tagName, tagValue2),
-                Tag.of(MetricsTags.TYPE.tagName, tagValue3),
+                Tag.of(MetricsTags.TYPE.tagName, tagValue3)
             ))
         andFilter shouldMatch generateMeter(
             filterName,
             listOf(
                 Tag.of(MetricsTags.METRIC.tagName, tagValue1),
                 Tag.of(MetricsTags.BACKEND.tagName, uuid()),
-                Tag.of(MetricsTags.TYPE.tagName, tagValue3),
+                Tag.of(MetricsTags.TYPE.tagName, tagValue3)
             ))
         andFilter shouldMatch generateMeter(
             filterName,
             listOf(
                 Tag.of(MetricsTags.METRIC.tagName, tagValue1),
                 Tag.of(MetricsTags.BACKEND.tagName, tagValue2),
-                Tag.of(MetricsTags.TYPE.tagName, uuid()),
+                Tag.of(MetricsTags.TYPE.tagName, uuid())
             ))
         andFilter shouldNotMatch generateMeter(filterName)
         andFilter shouldNotMatch generateMeter(
             tags = listOf(
-                Tag.of(MetricsTags.METRIC.tagName, tagValue1),
-                Tag.of(MetricsTags.BACKEND.tagName, tagValue2),
-                Tag.of(MetricsTags.TYPE.tagName, tagValue3)
+                Tag.of(MetricsTags.BACKEND.tagName, tagValue2)
             ))
     }
 

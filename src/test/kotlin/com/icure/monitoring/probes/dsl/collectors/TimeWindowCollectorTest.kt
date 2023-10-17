@@ -9,17 +9,20 @@ class TimeWindowCollectorTest : StringSpec({
 
     "When using a TimeWindowCollector, only the samples in the window are considered" {
         val clock = FakeClock()
+        var now = clock.wallTime()
         val collector = TimeWindowCollector(Duration.ofMinutes(1), Duration.ofSeconds(1), clock)
         collector.addValue(42.0)
 
         val size = 60
         val commonValue = 1.0
+        val offset = 1_000L
 
-        (0 until size).forEach { _ ->
-            clock.advance(1_000)
+        (0 .. size).forEach { _ ->
+            clock.advance(offset)
+            now += offset
             collector.addValue(commonValue)
         }
-        collector.getValues() shouldBe List(size) { commonValue }
+        collector.getValues() shouldBe (0 .. size).map { commonValue }
         collector.max() shouldBe 1.0
     }
 
@@ -28,14 +31,15 @@ class TimeWindowCollectorTest : StringSpec({
         val collector = TimeWindowCollector(Duration.ofMinutes(1), Duration.ofSeconds(1), clock)
 
         val size = 10
+        val samples = 1000
         (0 until size).forEach { value ->
             clock.advance(1_000)
-            (0 .. 1000).forEach { _ ->
+            (0 until samples).forEach { _ ->
                 collector.addValue(value.toDouble())
             }
         }
 
-        collector.getValues() shouldBe (0 until size).map { it.toDouble() }
+        collector.getValues() shouldBe (0 until size).flatMap { v -> (0 until samples).map { v.toDouble() } }
         collector.max() shouldBe (size - 1).toDouble()
     }
 
