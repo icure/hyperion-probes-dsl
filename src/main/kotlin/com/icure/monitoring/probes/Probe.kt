@@ -30,12 +30,12 @@ open class Probe(
      * @param availableActions all the [Action] available on the system.
      */
     fun dispatchActionsOnTriggerActivation(
-        currentLevel: Double,
-        thresholdValue: ThresholdValue,
+        currentLevel: Double?,
+        thresholdValue: ThresholdValue?,
         descriptors: Set<DescriptorElement>,
         availableActions: List<Action<ActionPayload>>
     ) {
-        if (trigger(currentLevel, thresholdValue)) {
+        if (currentLevel != null && thresholdValue != null && trigger(currentLevel, thresholdValue)) {
             val payloads = actionGenerators.map { it.generate(currentLevel, thresholdValue, descriptors) }
             availableActions.forEach { it.acceptAndDispatch(payloads) }
         }

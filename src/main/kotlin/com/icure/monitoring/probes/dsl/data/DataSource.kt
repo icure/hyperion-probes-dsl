@@ -4,11 +4,6 @@ import com.icure.monitoring.probes.ElasticProbe
 import com.icure.monitoring.probes.Probe
 import com.icure.monitoring.probes.RegistryProbe
 import com.icure.monitoring.probes.dsl.ProbeConfig
-import kotlinx.serialization.Serializable
-
-@DslMarker
-@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE, AnnotationTarget.FUNCTION)
-annotation class DataSourceScope
 
 /**
  * Base class to configure a datasource for a probe.
@@ -21,14 +16,12 @@ abstract class DataSource {
          * it and will dispatch its actions after the registry publishes the data, whether this succeeds or fails.
          * Only registry that are Identifiable can receive probes.
          */
-        @DataSourceScope
         fun registry(block: RegistryDataSource.() -> Unit) = RegistryDataSource().apply(block)
 
         /**
          * Defines a [ElasticDataSource] for the probe. The probe will then fetch data periodically, as specified by the
          * cron in the configuration, and will dispatch its actions independently of the registries.
          */
-        @DataSourceScope
         fun elastic(block: ElasticDataSource.() -> Unit) = ElasticDataSource().apply(block)
     }
 
@@ -39,7 +32,6 @@ abstract class DataSource {
 
 }
 
-@DataSourceScope
 class RegistryDataSource : DataSource() {
     /**
      * The id of the registry to attach this probe to. Only Identifiable registries are supported.
@@ -49,8 +41,6 @@ class RegistryDataSource : DataSource() {
     override fun createProbe(config: ProbeConfig) = RegistryProbe(registryId, config)
 }
 
-@Serializable
-@DataSourceScope
 class ElasticDataSource : DataSource() {
     /**
      * The elastic index to query.

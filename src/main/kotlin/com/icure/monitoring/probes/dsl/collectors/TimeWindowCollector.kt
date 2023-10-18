@@ -70,5 +70,17 @@ class TimeWindowCollector(
      * @return the maximum value registered in the time window. Note: differently from the values returned by
      * [getValues], this is NOT approximated.
      */
-    fun max(): Double = getBucketsInTimeWindow().maxOf { it.max }
+    fun max(): Double? = getBucketsInTimeWindow().maxOfOrNull { it.max }
+
+    /**
+     * @return the average value registered in the time window. Note: differently from the values returned by
+     * [getValues], this is NOT approximated.
+     * Since each bucket in the window already computes an average, the average of the average is taken. This converges
+     * to the statistical average as per [LLN](https://en.wikipedia.org/wiki/Law_of_large_numbers).
+     */
+    fun average(): Double? = getBucketsInTimeWindow().takeIf {
+        it.isNotEmpty()
+    }?.map {
+        it.sum / it.histogram.totalCount
+    }?.average()
 }

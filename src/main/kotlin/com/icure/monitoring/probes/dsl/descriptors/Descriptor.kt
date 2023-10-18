@@ -2,6 +2,9 @@ package com.icure.monitoring.probes.dsl.descriptors
 
 import io.micrometer.core.instrument.Meter
 
+const val NULL_GROUP = "NULL_GROUP"
+const val NULL_VALUE = "NULL_VALUE"
+
 /**
  * A data class that represent one element of a complex descriptor
  *

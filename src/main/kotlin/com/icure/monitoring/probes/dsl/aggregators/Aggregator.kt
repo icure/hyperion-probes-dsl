@@ -24,7 +24,7 @@ sealed interface Aggregator {
      * @param collector a [Collector] containing the data to aggregate.
      * @return the aggregated value.
      */
-    fun aggregate(collector: Collector): Double
+    fun aggregate(collector: Collector): Double?
 }
 
 /**

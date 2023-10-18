@@ -12,7 +12,7 @@ object MaxAggregator : Aggregator {
     override fun toElasticAggregation(extractor: Extractor): String =
         "{\"max\":{\"field\":\"${extractor.field}\"}}"
 
-    override fun aggregate(collector: Collector): Double =
+    override fun aggregate(collector: Collector): Double? =
         when(collector) {
             is FixedSizeCollector -> collector.getValues().max()
             is TimeWindowCollector -> collector.max()

@@ -8,5 +8,5 @@ import com.icure.monitoring.probes.dsl.comparators.ThresholdValue
  */
 sealed interface Threshold {
 
-    fun getValue(): ThresholdValue
+    fun getValue(): ThresholdValue?
 }

@@ -38,6 +38,6 @@ class RegistryThreshold(
         }
     }
 
-    override fun getValue(): ThresholdValue = aggregator.aggregate(collector)
+    override fun getValue(): ThresholdValue? = aggregator.aggregate(collector)
 
 }
