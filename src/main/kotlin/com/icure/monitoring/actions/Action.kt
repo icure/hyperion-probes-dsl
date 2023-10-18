@@ -13,4 +13,12 @@ interface Action<T: ActionPayload> {
      * @param payload the payload to pass.
      */
     fun execute(payload: T)
+
+    /**
+     * This function receives a collection of generic [ActionPayload] and will dispatch only the ones that can actually
+     * be executed by the concrete implementation of this action.
+     *
+     * @param payloads a [Collection] of [ActionPayload].
+     */
+    fun acceptAndDispatch(payloads: Collection<ActionPayload>)
 }

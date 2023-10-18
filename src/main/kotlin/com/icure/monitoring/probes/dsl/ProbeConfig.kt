@@ -1,77 +1,76 @@
 package com.icure.monitoring.probes.dsl
 
+import com.icure.monitoring.actions.payload.ActionPayload
 import com.icure.monitoring.probes.Probe
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.icure.monitoring.probes.dsl.actions.ActionPayloadGenerator
+import com.icure.monitoring.probes.dsl.comparators.Comparator
+import com.icure.monitoring.probes.dsl.comparators.ThresholdValue
+import com.icure.monitoring.probes.dsl.descriptors.Descriptor
+import com.icure.monitoring.probes.dsl.descriptors.DescriptorElement
+import com.icure.monitoring.probes.dsl.descriptors.NULL_GROUP
+import com.icure.monitoring.probes.dsl.descriptors.NULL_VALUE
+import com.icure.monitoring.probes.dsl.descriptors.descriptor
+import com.icure.monitoring.probes.dsl.threshold.FixedValueThreshold
+import com.icure.monitoring.probes.dsl.threshold.RegistryThreshold
+import com.icure.monitoring.probes.dsl.threshold.Threshold
+import io.micrometer.core.instrument.Meter
 import java.util.UUID
-import kotlin.IllegalStateException
+
+@DslMarker
+@Target(AnnotationTarget.FUNCTION)
+annotation class ProbeScope
 
 /**
  * Configuration class to instantiate a probe.
- * @param description the description of the probe, used in the payload of the actions.
- * @param actions the actions that the probe will dispatch.
- * @param filter the filter applied to the incoming data.
- * @param probeId the id of the probe.
  */
-@Serializable
-data class ProbeConfig(
-    var description: String = "",
-    val actions: MutableList<ActionConfig<*>> = mutableListOf(),
-    var filter: Filter = NoOpFilter,
-    var probeId: String = UUID.randomUUID().toString(),
-) {
+class ProbeConfig : DataAggregationChain() {
 
     /**
-     * The trigger defined through the DSL.
+     * An Id that uniquely identifies the probe.
      */
-    lateinit var definedTrigger: Trigger
+    var probeId: String = UUID.randomUUID().toString()
+    var descriptorsGenerator: (Meter) -> Collection<Descriptor> = {
+        listOf(descriptor { DescriptorElement(NULL_GROUP, NULL_VALUE) })
+    }
+    lateinit var comparator: Comparator
+    lateinit var threshold: Threshold
+    val definedActions = mutableListOf<ActionPayloadGenerator<*>>()
 
     /**
-     * The data source defined through the DSL.
+     * Defines a collection of [Descriptor]s that will be used to group the results.
      */
-    lateinit var definedDataSource: DataSource
-
-    /**
-     * Checks if a probe can be instantiated through this configuration. To do so, both the trigger and the data source
-     * must be defined.
-     */
-    fun isComplete() {
-        when {
-            !::definedTrigger.isInitialized -> throw IllegalStateException("No Trigger defined")
-            !::definedDataSource.isInitialized -> throw IllegalStateException("No DataSource defined")
-        }
+    @ProbeScope
+    fun group(block: (Meter) -> Collection<Descriptor>) {
+        descriptorsGenerator = block
     }
 
     /**
-     * Defines the data source for this Probe. Can be defined only once per configuration.
+     * Defines a function that will compare the aggregated value to the threshold.
      */
-    @DataSourceScope
-    fun dataSource(block: (@DataSourceScope DataSource.Companion).() -> DataSource) {
-        definedDataSource = block(DataSource.Companion)
+    @ProbeScope
+    fun compare(block: Comparator) {
+        comparator = block
     }
 
     /**
-     * Defines the trigger for this Probe. can be defined only once per configuration.
+     * Defines a complex threshold using a parallel [DataAggregationChain].
      */
-    fun trigger(block: Trigger.Companion.() -> Trigger) {
-        definedTrigger = block(Trigger.Companion)
+    @ProbeScope
+    fun threshold(block: DataAggregationChain.() -> Unit) = DataAggregationChain().apply(block).also {
+        threshold = RegistryThreshold(it)
     }
 
     /**
-     * Defines a filter used to limit the data processed by the trigger. Can be defined only once per configuration.
+     * Defines a fixed size threshold.
      */
-    @FilterScope
-    fun filter(block: () -> Filter) {
-        filter = block()
+    @ProbeScope
+    fun fixedThreshold(block: () -> ThresholdValue) {
+        threshold = FixedValueThreshold(block())
     }
 
-    /**
-     * Defines an action to be dispatched when the probe is triggered.
-     */
-    @ActionScope
-    fun action(block: (@ActionScope ActionConfig.Companion).() -> ActionConfig<*>) {
-        actions.add(block(ActionConfig.Companion))
+    @ProbeScope
+    fun <T: ActionPayload> action(block: ActionPayloadGenerator.Companion.() -> ActionPayloadGenerator<T>) {
+        definedActions.add(block(ActionPayloadGenerator.Companion))
     }
 
 }
@@ -79,14 +78,4 @@ data class ProbeConfig(
 /**
  * Starting point for the probe DSL. It instantiates a [Probe] class according to the configuration specified.
  */
-fun probe(init: ProbeConfig.() -> Unit): Probe = ProbeConfig().apply(init).also{
-    it.isComplete()
-}.let { it.definedDataSource.createProbe(it) }
-
-/**
- * Generate a JSON configuration for a probe.
- */
-fun probeConfig(init: ProbeConfig.() -> Unit): String = ProbeConfig().apply(init).let{
-    it.isComplete()
-    Json.encodeToString(it)
-}
+fun probe(init: ProbeConfig.() -> Unit): Probe = ProbeConfig().apply(init).let { it.definedDataSource.createProbe(it) }

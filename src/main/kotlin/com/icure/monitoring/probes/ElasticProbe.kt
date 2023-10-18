@@ -1,6 +1,7 @@
 package com.icure.monitoring.probes
 
 import com.icure.monitoring.probes.dsl.ProbeConfig
+import com.icure.monitoring.probes.dsl.collectors.TimeWindowCollector
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -48,11 +49,15 @@ class ElasticProbe(
     private val elasticPassword: String = System.getenv("MANAGEMENT_ELASTIC_METRICS_EXPORT_PASSWORD")
 
     private val client = HttpClient(CIO)
+    private val timeWindow = config.collectorProducer().let {
+        if (it is TimeWindowCollector) it.samplingDurationMillis
+        else throw IllegalArgumentException("Only TimeWindowCollector is supported in this probe")
+    }
 
     private fun computeQuery() = buildString {
         append("\"bool\":{\"must\":[")
         val to = System.currentTimeMillis()
-        val from = to - trigger.timeFrame.toMillis()
+        val from = to - timeWindow
         append("{\"range\":{\"@timestamp\":{\"format\":\"epoch_millis\",\"gte\":\"${from}\",\"lte\": \"${to}\"}}}")
         append(",{${filter.toElasticQuery()}}")
         append("]}")
@@ -62,7 +67,7 @@ class ElasticProbe(
         val result = client.post("$elasticUrl/$index/_search?size=0") {
             basicAuth(elasticUsername, elasticPassword)
             contentType(ContentType.Application.Json)
-            setBody("{\"query\":{${computeQuery()}},\"aggs\":{\"$id\":${trigger.toElasticAggregation()}}}")
+            setBody("{\"query\":{${computeQuery()}},\"aggs\":{\"$id\":${aggregator.toElasticAggregation(extractor)}}}")
         }
         val payload = DEFAULT_JSON.decodeFromString<Aggregations>(result.bodyAsText())
         return payload.aggregations[id]?.value
