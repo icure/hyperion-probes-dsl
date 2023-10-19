@@ -30,14 +30,14 @@ sealed interface Aggregator {
 /**
  * A utility function to easily define a [CustomAggregator].
  */
-fun aggregator(block: (collector: Collector) -> Double) = CustomAggregator(block)
+fun aggregator(block: (collector: Collector) -> Double?) = CustomAggregator(block)
 
 class CustomAggregator(
-    private val aggregationFunction: (collector: Collector) -> Double
+    private val aggregationFunction: (collector: Collector) -> Double?
 ) : Aggregator {
 
     override fun toElasticAggregation(extractor: Extractor): String =
         throw UnsupportedDataSourceException("This aggregator is not compatible with a remote ES datasource.")
 
-    override fun aggregate(collector: Collector): Double = aggregationFunction(collector)
+    override fun aggregate(collector: Collector): Double? = aggregationFunction(collector)
 }
