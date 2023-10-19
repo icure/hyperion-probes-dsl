@@ -12,7 +12,7 @@ class FixedSizeCollector(
     private val windowSize: Int
 ): Collector {
 
-    private val queue = Array(windowSize) { 0.0 }
+    private val queue: Array<Double?> = Array(windowSize) { null }
     private var head: Int = 0
     private val queueMutex = Mutex()
 
@@ -23,6 +23,6 @@ class FixedSizeCollector(
         }
     }
 
-    override fun getValues(): List<Double> = List(windowSize) { queue[(head + 1 + it) % windowSize] }
+    override fun getValues(): List<Double> = List(windowSize) { queue[(head + 1 + it) % windowSize] }.filterNotNull()
 
 }
