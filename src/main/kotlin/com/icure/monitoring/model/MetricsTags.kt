@@ -1,5 +1,6 @@
 package com.icure.monitoring.model
 
+@Suppress("unused")
 enum class MetricsTags(val tagName: String, val queryValue: String) {
     NAMESPACE("location.namespace", "location_namespace"),
     INSTANCE_ID("location.instance.id", "location_instance_id"),
@@ -35,5 +36,6 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     OPERATION("operation", "operation"),
     TCP_PORT("tcp.port", "tcp_port"),
     COUCHDB_TASK_TYPE("couchdb.task.type", "couchdb_task_type"),
-    COUCHDB_TASK_STATUS("couchdb.task.status", "couchdb_task_status")
+    COUCHDB_TASK_STATUS("couchdb.task.status", "couchdb_task_status"),
+    POD_RESTARTS("pod.restarts", "pod_restarts")
 }
