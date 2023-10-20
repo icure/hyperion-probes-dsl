@@ -5,6 +5,7 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     NAMESPACE("location.namespace", "location_namespace"),
     INSTANCE_ID("location.instance.id", "location_instance_id"),
     NODE_ID("location.node.id", "location_node_id"),
+    POD_ID("pod.id", "pod_id"),
     METRIC("metric", "metric"),
     TYPE("type", "type"),
     BACKEND("backend", "backend"),
@@ -37,5 +38,5 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     TCP_PORT("tcp.port", "tcp_port"),
     COUCHDB_TASK_TYPE("couchdb.task.type", "couchdb_task_type"),
     COUCHDB_TASK_STATUS("couchdb.task.status", "couchdb_task_status"),
-    POD_RESTARTS("pod.restarts", "pod_restarts")
+
 }
