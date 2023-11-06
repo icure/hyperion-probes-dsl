@@ -3,6 +3,7 @@ package com.icure.monitoring.probes.dsl
 import com.icure.monitoring.probes.dsl.aggregators.Aggregator
 import com.icure.monitoring.probes.dsl.aggregators.AverageAggregator
 import com.icure.monitoring.probes.dsl.aggregators.MaxAggregator
+import com.icure.monitoring.probes.dsl.aggregators.SumAggregator
 import com.icure.monitoring.probes.dsl.collectors.Collector
 import com.icure.monitoring.probes.dsl.data.DataSource
 import com.icure.monitoring.probes.dsl.extractors.Extractor
@@ -58,6 +59,17 @@ open class DataAggregationChain {
         definedAggregator = AverageAggregator
         val params = block()
         definedExtractor = params.extractor.forAverageAggregator()
+        collectorProducer = params.collectorProducer
+    }
+
+    /**
+     * Will aggregate the result using the [ExtractorFactory.forCountAggregator] version of the [Extractor].
+     */
+    @DataAggregationScope
+    fun count(block: () -> ExtractorFactoryParams) {
+        definedAggregator = SumAggregator
+        val params = block()
+        definedExtractor = params.extractor.forCountAggregator()
         collectorProducer = params.collectorProducer
     }
 

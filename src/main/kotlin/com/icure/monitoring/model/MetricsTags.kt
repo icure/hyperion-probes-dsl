@@ -38,5 +38,6 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     TCP_PORT("tcp.port", "tcp_port"),
     COUCHDB_TASK_TYPE("couchdb.task.type", "couchdb_task_type"),
     COUCHDB_TASK_STATUS("couchdb.task.status", "couchdb_task_status"),
-
+    COUCHDB_TASK_RUN_TIME("couchdb.task.run.time", "couchdb_task_run_time"),
+    COUCHDB_TASK_ITEMS("couchdb.task.items", "couchdb_task_items")
 }

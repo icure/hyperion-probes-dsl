@@ -21,6 +21,6 @@ sealed interface Collector {
      *
      * @return a [List] of [Double] that contains all the values currently stored in this collector.
      */
-    fun getValues(): List<Double>
+    fun getValues(): List<Double>?
 
 }

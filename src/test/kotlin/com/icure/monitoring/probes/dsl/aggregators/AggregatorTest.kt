@@ -14,7 +14,7 @@ class AggregatorTest : StringSpec({
             collector.addValue(it)
         }
         val aggregator = aggregator {
-            it.getValues().sum() / 10
+            it.getValues()?.sum()?.div(10)
         }
 
         aggregator.aggregate(collector) shouldBe (values.sum() / 10)

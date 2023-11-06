@@ -38,6 +38,8 @@ dependencies {
     testImplementation(group = "io.mockk", name = "mockk", version = "1.13.4")
     testImplementation(group = "io.kotest", name = "kotest-assertions-core-jvm", version = "5.5.5")
     testImplementation(group = "io.kotest", name = "kotest-runner-junit5", version = "5.5.5")
+    testImplementation(group = "org.apache.commons", name="commons-rng-simple", version="1.5")
+    testImplementation(group = "org.apache.commons", name="commons-rng-sampling", version="1.5")
 }
 
 tasks.test {

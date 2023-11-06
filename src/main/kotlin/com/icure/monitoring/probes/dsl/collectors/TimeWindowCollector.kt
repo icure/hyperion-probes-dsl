@@ -24,11 +24,12 @@ import java.time.Duration
  * [System.currentTimeMillis].
  */
 class TimeWindowCollector(
-    timeFrame: Duration,
+    private val timeFrame: Duration,
     samplingDuration: Duration,
     private val clock: Clock = Clock.SYSTEM
 ) : Collector {
 
+    private val instantiationTime = clock.wallTime()
     private val sampledTimeFrame = timeFrame.toMillis() / samplingDuration.toMillis()
     val samplingDurationMillis = samplingDuration.toMillis()
     private val layout = LogQuadraticLayout.create(10.0, 1e-2, 0.0, 1e9)
@@ -52,13 +53,15 @@ class TimeWindowCollector(
         }
     }
 
-    private fun getBucketsInTimeWindow() = (clock.wallTime() / samplingDurationMillis).let { currentIndex ->
-        buckets.filterKeys { k ->
-            k >= (currentIndex - sampledTimeFrame)
-        }.values
-    }
+    private fun getBucketsInTimeWindow() = if((clock.wallTime() - instantiationTime) >= timeFrame.toMillis()) {
+        (clock.wallTime() / samplingDurationMillis).let { currentIndex ->
+            buckets.filterKeys { k ->
+                k >= (currentIndex - sampledTimeFrame)
+            }.values
+        }
+    } else null
 
-    override fun getValues(): List<Double> = getBucketsInTimeWindow().flatMap { bucket ->
+    override fun getValues(): List<Double>? = getBucketsInTimeWindow()?.flatMap { bucket ->
         bucket.histogram.nonEmptyBinsAscending().flatMap { bin ->
             List(bin.binCount.toInt()) {
                 (bin.upperBound + bin.lowerBound) / 2.0
@@ -70,7 +73,13 @@ class TimeWindowCollector(
      * @return the maximum value registered in the time window. Note: differently from the values returned by
      * [getValues], this is NOT approximated.
      */
-    fun max(): Double? = getBucketsInTimeWindow().maxOfOrNull { it.max }
+    fun max(): Double? = getBucketsInTimeWindow()?.maxOfOrNull { it.max }
+
+    /**
+     * @return the sum of the values registered in the time window. Note: differently from the values returned by
+     *      * [getValues], this is NOT approximated.
+     */
+    fun sum(): Double? = getBucketsInTimeWindow()?.sumOf { it.sum }
 
     /**
      * @return the average value registered in the time window. Note: differently from the values returned by
@@ -78,7 +87,7 @@ class TimeWindowCollector(
      * Since each bucket in the window already computes an average, the average of the average is taken. This converges
      * to the statistical average as per [LLN](https://en.wikipedia.org/wiki/Law_of_large_numbers).
      */
-    fun average(): Double? = getBucketsInTimeWindow().takeIf {
+    fun average(): Double? = getBucketsInTimeWindow()?.takeIf {
         it.isNotEmpty()
     }?.map {
         it.sum / it.histogram.totalCount

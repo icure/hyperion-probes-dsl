@@ -354,7 +354,7 @@ class ProbesE2ETest : StringSpec({
 
             customAggregation {
                 CountOfDistributionSummary over Duration.ofSeconds(600) aggregateUsing aggregator {
-                    it.getValues().sum()
+                    it.getValues()?.sum()
                 }
             }
 
