@@ -54,21 +54,17 @@ class RegistryProbe(
      * If the comparator returns true, then the appropriate actions are dispatched.
      *
      * @param availableActions the actions registered in the system.
-     * @param publishingRegistryId the id of teh registry that finished publishing.
      */
-    fun checkAndDispatch(availableActions: List<Action<ActionPayload>>, publishingRegistryId: String) {
-        if (publishingRegistryId == registryId) {
-            val thresholdValue = threshold.getValue()
-            collectors.forEach { (descriptors, collector) ->
-                dispatchActionsOnTriggerActivation(
-                    aggregator.aggregate(collector),
-                    thresholdValue,
-                    descriptors,
-                    availableActions
-                )
-            }
+    fun checkAndDispatch(availableActions: List<Action<ActionPayload>>) {
+        val thresholdValue = threshold.getValue()
+        collectors.forEach { (descriptors, collector) ->
+            dispatchActionsOnTriggerActivation(
+                aggregator.aggregate(collector),
+                thresholdValue,
+                descriptors,
+                availableActions
+            )
         }
-
     }
 
 }
