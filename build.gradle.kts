@@ -9,7 +9,7 @@ plugins {
     kotlin("plugin.serialization") version "1.7.20"
     id("maven-publish")
     id("com.taktik.gradle.maven-repository") version "1.0.7"
-    id("com.taktik.gradle.git-version") version "2.0.13-gd2de85485"
+    id("com.taktik.gradle.git-version") version "2.0.13-gd2de854853"
     id("com.github.jk1.dependency-license-report") version "2.0"
 }
 
