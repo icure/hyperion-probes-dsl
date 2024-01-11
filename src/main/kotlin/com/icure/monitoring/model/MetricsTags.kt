@@ -35,5 +35,6 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     COUCHDB_TASK_ITEMS("couchdb.task.items", "couchdb_task_items"),
     DESIGN_DOC("designdoc", "designdoc"),
     DESIGN_VIEW("view", "view"),
-    NETWORK_INTERFACE("network.interface", "network_interface")
+    NETWORK_INTERFACE("network.interface", "network_interface"),
+    URL("url", "url"),
 }
