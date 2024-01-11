@@ -25,7 +25,7 @@ class ElasticProbe(
     companion object {
         @Serializable
         private data class AggregationResult(
-            val `d_gauge-value`: Double
+            val value: Double
         )
 
         @Serializable
@@ -88,7 +88,7 @@ class ElasticProbe(
         }
         return try {
             val payload = DEFAULT_JSON.decodeFromString<Aggregations>(responseAsText)
-            payload.aggregations[id]?.`d_gauge-value`
+            payload.aggregations[id]?.value
         } catch (e: Exception) {
             log.warn("Exception occurred while parsing Elasticsearch result (url=$url, body=$body): result=$responseAsText", e)
             null
