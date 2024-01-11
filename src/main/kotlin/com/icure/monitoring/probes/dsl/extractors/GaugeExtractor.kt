@@ -18,7 +18,7 @@ sealed class GaugeExtractor : Extractor {
  * Extracts the value from a [Gauge].
  */
 class GaugeValue : GaugeExtractor() {
-    override val field: String = "value"
+    override val field: String = "d_gauge-value"
 
     companion object: SingleExtractorFactory {
         override fun getExtractor(): Extractor = GaugeValue()
@@ -36,6 +36,6 @@ class GaugeCount : GaugeExtractor() {
         override fun getExtractor(): Extractor = GaugeCount()
     }
 
-    override val field: String = "value"
+    override val field: String = "d_gauge-value"
     override fun valueOf(meter: Meter): Double? = 1.0.takeIf { meter is Gauge }
 }
