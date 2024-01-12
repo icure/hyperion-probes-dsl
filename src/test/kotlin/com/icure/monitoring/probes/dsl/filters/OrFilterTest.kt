@@ -13,7 +13,7 @@ class OrFilterTest : StringSpec({
     "An OrFilter should match all the meters that satisfy at least one of the conditions" {
         val filterName = uuid()
         val tagValue = uuid()
-        val andFilter = MatchNameFilter(filterName) or MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val andFilter = NameEqualsFilter(filterName) or TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         andFilter shouldMatch generateMeter(filterName, listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         andFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
@@ -27,11 +27,11 @@ class OrFilterTest : StringSpec({
     "OrFilters can be combined with and" {
         val filterName = uuid()
         val tagValue1 = uuid()
-        val filter1 = MatchNameFilter(filterName) or MatchTagFilter(MetricsTags.METRIC, tagValue1)
+        val filter1 = NameEqualsFilter(filterName) or TagEqualsFilter(MetricsTags.METRIC, tagValue1)
 
         val tagValue2 = uuid()
         val tagValue3 = uuid()
-        val filter2 = MatchTagFilter(MetricsTags.BACKEND, tagValue2) or MatchTagFilter(MetricsTags.TYPE, tagValue3)
+        val filter2 = TagEqualsFilter(MetricsTags.BACKEND, tagValue2) or TagEqualsFilter(MetricsTags.TYPE, tagValue3)
 
         val andFilter = filter1 and filter2
         andFilter shouldMatch generateMeter(
@@ -79,11 +79,11 @@ class OrFilterTest : StringSpec({
     "OrFilters can be combined with or" {
         val filterName = uuid()
         val tagValue1 = uuid()
-        val filter1 = MatchNameFilter(filterName) or MatchTagFilter(MetricsTags.METRIC, tagValue1)
+        val filter1 = NameEqualsFilter(filterName) or TagEqualsFilter(MetricsTags.METRIC, tagValue1)
 
         val tagValue2 = uuid()
         val tagValue3 = uuid()
-        val filter2 = MatchTagFilter(MetricsTags.BACKEND, tagValue2) or MatchTagFilter(MetricsTags.TYPE, tagValue3)
+        val filter2 = TagEqualsFilter(MetricsTags.BACKEND, tagValue2) or TagEqualsFilter(MetricsTags.TYPE, tagValue3)
 
         val andFilter = filter1 or filter2
         andFilter shouldMatch generateMeter(

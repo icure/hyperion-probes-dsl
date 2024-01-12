@@ -24,7 +24,7 @@ class GenericMeterFilterTest : StringSpec({
             !it.id.name.startsWith("prefix")
         }
         val tagValue = uuid()
-        val compositeFilter = filter and MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val compositeFilter = filter and TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         compositeFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldNotMatch generateMeter("prefix-${uuid()}-suffix", listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
@@ -37,7 +37,7 @@ class GenericMeterFilterTest : StringSpec({
             !it.id.name.endsWith("suffix")
         }
         val tagValue = uuid()
-        val compositeFilter = filter or MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val compositeFilter = filter or TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         compositeFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldMatch generateMeter("${uuid()}-suffix", listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))

@@ -12,7 +12,7 @@ class MatchNameFilterTest : StringSpec({
 
     "A MatchNameFilter should match only the meters that match the condition" {
         val name = uuid()
-        val filter = MatchNameFilter(name)
+        val filter = NameEqualsFilter(name)
 
         filter shouldMatch generateMeter(name)
         filter shouldNotMatch generateMeter(uuid())
@@ -21,7 +21,7 @@ class MatchNameFilterTest : StringSpec({
     "A MatchNameFilter can be combined with other filters through and" {
         val name = uuid()
         val tagValue = uuid()
-        val compositeFilter = metricNameIs(name) and MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val compositeFilter = metricNameIs(name) and TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         compositeFilter shouldMatch generateMeter(name, listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldNotMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
@@ -32,7 +32,7 @@ class MatchNameFilterTest : StringSpec({
     "A MatchNameFilter can be combined with other filters through or" {
         val name = uuid()
         val tagValue = uuid()
-        val compositeFilter = metricNameIs(name) or MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val compositeFilter = metricNameIs(name) or TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         compositeFilter shouldMatch generateMeter(name, listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))

@@ -11,7 +11,7 @@ class MatchTypeFilterTest : StringSpec({
 
     "A MatchTypeFilter should match only the meters that match the condition" {
         val meterType = Meter.Type.COUNTER
-        val filter = MatchTypeFilter(meterType)
+        val filter = TypeIsFilter(meterType)
 
         filter shouldMatch generateMeter(type = meterType)
         filter shouldNotMatch generateMeter()
