@@ -14,6 +14,6 @@ class FakeJiraAction : Action<JiraActionPayload> {
     }
 
     override fun acceptAndDispatch(payloads: Collection<ActionPayload>, descriptors: Set<DescriptorElement>) {
-        payloads.filterIsInstance<JiraActionPayload>().forEach { execute(it) }
+        payloads.filterIsInstance<JiraActionPayload>().forEach { execute(it, descriptors) }
     }
 }
