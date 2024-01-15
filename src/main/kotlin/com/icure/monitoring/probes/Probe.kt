@@ -45,7 +45,7 @@ open class Probe(
     ) {
         if (currentLevel != null && thresholdValue != null && trigger(currentLevel, thresholdValue)) {
             val payloads = actionGenerators.map { it.generate(currentLevel, thresholdValue, descriptors) }
-            availableActions.forEach { it.acceptAndDispatch(payloads) }
+            availableActions.forEach { it.acceptAndDispatch(payloads, descriptors) }
         }
     }
 }
