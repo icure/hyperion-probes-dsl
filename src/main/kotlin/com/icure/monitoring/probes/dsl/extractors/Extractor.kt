@@ -26,16 +26,16 @@ sealed interface Extractor {
  * Factory method that instantiates different implementation of an [Extractor] based on the aggregator to apply.
  */
 interface ExtractorFactory {
-    fun forMaxAggregator(): Extractor
-    fun forAverageAggregator(): Extractor
-    fun forCountAggregator(): Extractor
+    fun forMaxAggregator(valueField: String): Extractor
+    fun forAverageAggregator(valueField: String): Extractor
+    fun forCountAggregator(valueField: String): Extractor
 }
 
 /**
  * An interface that instantiate a single implementation of an [Extractor]. It is useful to keep the DSL coherent.
  */
 interface SingleExtractorFactory {
-    fun getExtractor(): Extractor
+    fun getExtractor(valueField: String): Extractor
 }
 
 /**

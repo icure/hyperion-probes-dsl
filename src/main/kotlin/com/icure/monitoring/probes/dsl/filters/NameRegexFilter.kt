@@ -16,7 +16,7 @@ data class NameRegexFilter(
 
     override fun matches(meter: Meter): Boolean = Regex(pattern).containsMatchIn(meter.id.name)
     override fun toString(): String = "name matches $pattern"
-    override fun toElasticQuery(): String = "\"regexp\":{\"s_qs_item-name\":{\"value\":\"$pattern\"}}"
+    override fun toElasticQuery(): String = "\"regexp\":{\"name\":{\"value\":\"$pattern\"}}"
 }
 
 /**

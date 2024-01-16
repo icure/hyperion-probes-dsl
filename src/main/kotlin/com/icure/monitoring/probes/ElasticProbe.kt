@@ -49,7 +49,7 @@ class ElasticProbe(
 
     private val client = HttpClient(CIO)
     private val timeWindow = config.collectorProducer().let {
-        if (it is TimeWindowCollector) it.samplingDurationMillis
+        if (it is TimeWindowCollector) it.timeFrame.toMillis()
         else throw IllegalArgumentException("Only TimeWindowCollector is supported in probe ${config.probeId}")
     }
 
@@ -57,7 +57,7 @@ class ElasticProbe(
         append(""""bool":{"must":[""")
         val to = System.currentTimeMillis()
         val from = to - timeWindow
-        append("""{"range":{"D_timestampedItem-date":{"format":"epoch_millis","gte":"$from","lte": "$to"}}}""")
+        append("""{"range":{"$timestampField":{"format":"epoch_millis","gte":"$from","lte": "$to"}}}""")
         append(",{${filter.toElasticQuery()}}")
         append("]}")
     }

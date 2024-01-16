@@ -16,7 +16,7 @@ data class NameEqualsFilter(
 
     override fun matches(meter: Meter): Boolean = meter.id.name == query
     override fun toString(): String = "name is $query"
-    override fun toElasticQuery(): String = "\"term\":{\"s_qs_item-name\":\"$query\"}"
+    override fun toElasticQuery(): String = "\"term\":{\"name\":\"$query\"}"
 }
 
 /**

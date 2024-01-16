@@ -44,10 +44,10 @@ open class DataAggregationChain {
      * Will aggregate the result using the [ExtractorFactory.forMaxAggregator] version of the [Extractor].
      */
     @DataAggregationScope
-    fun max(block: () -> ExtractorFactoryParams) {
+    fun max(valueField: String = "value", block: () -> ExtractorFactoryParams) {
         definedAggregator = MaxAggregator
         val params = block()
-        definedExtractor = params.extractor.forMaxAggregator()
+        definedExtractor = params.extractor.forMaxAggregator(valueField)
         collectorProducer = params.collectorProducer
     }
 
@@ -55,10 +55,10 @@ open class DataAggregationChain {
      * Will aggregate the result using the [ExtractorFactory.forAverageAggregator] version of the [Extractor].
      */
     @DataAggregationScope
-    fun average(block: () -> ExtractorFactoryParams) {
+    fun average(valueField: String = "value", block: () -> ExtractorFactoryParams) {
         definedAggregator = AverageAggregator
         val params = block()
-        definedExtractor = params.extractor.forAverageAggregator()
+        definedExtractor = params.extractor.forAverageAggregator(valueField)
         collectorProducer = params.collectorProducer
     }
 
@@ -66,10 +66,10 @@ open class DataAggregationChain {
      * Will aggregate the result using the [ExtractorFactory.forCountAggregator] version of the [Extractor].
      */
     @DataAggregationScope
-    fun count(block: () -> ExtractorFactoryParams) {
+    fun count(valueField: String = "value", block: () -> ExtractorFactoryParams) {
         definedAggregator = SumAggregator
         val params = block()
-        definedExtractor = params.extractor.forCountAggregator()
+        definedExtractor = params.extractor.forCountAggregator(valueField)
         collectorProducer = params.collectorProducer
     }
 

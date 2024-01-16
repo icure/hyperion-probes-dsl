@@ -26,7 +26,7 @@ data class TagEqualsFilter(
 }
 
 /**
- * Returns a [TagEqualsFilter] that uses as tag type the [MetricsTags] used as receiver parameter and as regex the
+ * Returns a [TagEqualsFilter] that uses as tag type the [MetricsTags] used as receiver parameter and as value the
  * one passed as parameter.
  *
  * @param value a value that will be used to check the value of the tag.

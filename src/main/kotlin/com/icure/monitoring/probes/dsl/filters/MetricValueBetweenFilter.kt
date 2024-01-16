@@ -15,12 +15,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MetricValueBetweenFilter(
     val from: Double,
-    val to: Double
+    val to: Double,
+    val valueField: String,
 ) : SimpleFilter() {
 
     override fun matches(meter: Meter): Boolean = meter is Gauge && meter.value() >= from && meter.value() <= to
     override fun toString(): String = "$from <= value <= $to"
-    override fun toElasticQuery(): String = "\"range\":{\"d_gauge-value\":{\"gte\":$from,\"lte\":$to}}"
+    override fun toElasticQuery(): String = "\"range\":{\"$valueField\":{\"gte\":$from,\"lte\":$to}}"
 }
 
 /**
@@ -30,4 +31,4 @@ data class MetricValueBetweenFilter(
  * @param to the upper bound of the range to match.
  * @return a [MetricValueBetweenFilter]
  */
-fun metricValueBetween(from: Double, to: Double) = MetricValueBetweenFilter(from, to)
+fun metricValueBetween(from: Double, to: Double, valueField: String = "value") = MetricValueBetweenFilter(from, to, valueField)

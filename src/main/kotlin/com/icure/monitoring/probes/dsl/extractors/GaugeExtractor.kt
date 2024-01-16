@@ -6,36 +6,36 @@ import io.micrometer.core.instrument.Meter
 /**
  * Base class for the hierarchy of [Extractor]s that operate on [Gauge].
  */
-sealed class GaugeExtractor : Extractor {
+abstract class GaugeExtractor : Extractor {
     companion object: ExtractorFactory {
-        override fun forMaxAggregator() = GaugeValue()
-        override fun forAverageAggregator() = GaugeValue()
-        override fun forCountAggregator() = GaugeCount()
+        override fun forMaxAggregator(valueField: String) = GaugeValue(valueField)
+        override fun forAverageAggregator(valueField: String) = GaugeValue(valueField)
+        override fun forCountAggregator(valueField: String) = GaugeCount(valueField)
     }
 }
 
 /**
  * Extracts the value from a [Gauge].
  */
-class GaugeValue : GaugeExtractor() {
-    override val field: String = "d_gauge-value"
+class GaugeValue(valueField: String) : GaugeExtractor() {
+    override val field: String = valueField
 
     companion object: SingleExtractorFactory {
-        override fun getExtractor(): Extractor = GaugeValue()
+        override fun getExtractor(valueField: String): Extractor = GaugeValue(valueField)
     }
-    override fun valueOf(meter: Meter): Double? = if(meter is Gauge) meter.value().takeIf { it.isFinite() } else null
 
+    override fun valueOf(meter: Meter): Double? = if(meter is Gauge) meter.value().takeIf { it.isFinite() } else null
 }
 
 /**
  * As [Gauge]s contain only one value, this extractor only returns 1 if the meter is a [Gauge].
  */
-class GaugeCount : GaugeExtractor() {
+class GaugeCount(valueField: String) : GaugeExtractor() {
+    override val field: String = valueField
 
     companion object: SingleExtractorFactory {
-        override fun getExtractor(): Extractor = GaugeCount()
+        override fun getExtractor(valueField: String): Extractor = GaugeCount(valueField)
     }
 
-    override val field: String = "d_gauge-value"
     override fun valueOf(meter: Meter): Double? = 1.0.takeIf { meter is Gauge }
 }

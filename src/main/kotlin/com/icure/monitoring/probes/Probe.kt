@@ -22,6 +22,7 @@ open class Probe(
     val trigger = config.comparator
     val aggregator = config.definedAggregator
     val extractor = config.definedExtractor
+    val timestampField = "@timestamp"
 
     protected val descriptorsGenerator: (Meter) -> List<DescriptorElement> = { meter ->
         config.descriptorsGenerator(meter).map { descriptor ->

@@ -17,7 +17,7 @@ class DistributionSummaryExtractorTest : StringSpec({
         val values = List(10) { Random.nextDouble(0.0, 42.0) }.onEach {
             ds.record(it)
         }
-        val maxOfDs = DistributionSummaryExtractor.forMaxAggregator()
+        val maxOfDs = DistributionSummaryExtractor.forMaxAggregator("value")
         maxOfDs.valueOf(ds) shouldBe values.max()
     }
 
@@ -26,7 +26,7 @@ class DistributionSummaryExtractorTest : StringSpec({
         val values = List(10) { Random.nextDouble(0.0, 42.0) }.onEach {
             ds.record(it)
         }
-        val averageOfDs = DistributionSummaryExtractor.forAverageAggregator()
+        val averageOfDs = DistributionSummaryExtractor.forAverageAggregator("value")
         averageOfDs.valueOf(ds) shouldBe values.average()
     }
 
@@ -35,7 +35,7 @@ class DistributionSummaryExtractorTest : StringSpec({
         val values = List(10) { Random.nextDouble(0.0, 42.0) }.onEach {
             ds.record(it)
         }
-        val countOfDs = DistributionSummaryExtractor.forCountAggregator()
+        val countOfDs = DistributionSummaryExtractor.forCountAggregator("value")
         countOfDs.valueOf(ds) shouldBe values.size
     }
 
@@ -47,9 +47,9 @@ class DistributionSummaryExtractorTest : StringSpec({
             gaugeValue
         ) { gaugeValue }
 
-        val maxOfDs = DistributionSummaryExtractor.forMaxAggregator()
-        val averageOfDs = DistributionSummaryExtractor.forAverageAggregator()
-        val countOfDs = DistributionSummaryExtractor.forCountAggregator()
+        val maxOfDs = DistributionSummaryExtractor.forMaxAggregator("value")
+        val averageOfDs = DistributionSummaryExtractor.forAverageAggregator("value")
+        val countOfDs = DistributionSummaryExtractor.forCountAggregator("value")
         maxOfDs.valueOf(gauge).shouldBeNull()
         averageOfDs.valueOf(gauge).shouldBeNull()
         countOfDs.valueOf(gauge).shouldBeNull()

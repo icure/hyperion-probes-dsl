@@ -24,7 +24,7 @@ import java.time.Duration
  * [System.currentTimeMillis].
  */
 class TimeWindowCollector(
-    private val timeFrame: Duration,
+    val timeFrame: Duration,
     samplingDuration: Duration,
     private val clock: Clock = Clock.SYSTEM
 ) : Collector {

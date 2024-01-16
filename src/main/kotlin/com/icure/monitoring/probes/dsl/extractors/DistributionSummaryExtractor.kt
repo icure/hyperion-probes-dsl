@@ -8,9 +8,9 @@ import io.micrometer.core.instrument.Meter
  */
 sealed class DistributionSummaryExtractor : Extractor {
     companion object: ExtractorFactory {
-        override fun forMaxAggregator() = MaxOfDistributionSummary()
-        override fun forAverageAggregator() = AverageOfDistributionSummary()
-        override fun forCountAggregator() = CountOfDistributionSummary()
+        override fun forMaxAggregator(valueField: String) = MaxOfDistributionSummary()
+        override fun forAverageAggregator(valueField: String) = AverageOfDistributionSummary()
+        override fun forCountAggregator(valueField: String) = CountOfDistributionSummary()
     }
 }
 
@@ -20,7 +20,7 @@ sealed class DistributionSummaryExtractor : Extractor {
 class MaxOfDistributionSummary : DistributionSummaryExtractor() {
 
     companion object: SingleExtractorFactory {
-        override fun getExtractor(): Extractor = MaxOfDistributionSummary()
+        override fun getExtractor(valueField: String): Extractor = MaxOfDistributionSummary()
     }
 
     override val field = "max"
@@ -33,7 +33,7 @@ class MaxOfDistributionSummary : DistributionSummaryExtractor() {
 class AverageOfDistributionSummary : DistributionSummaryExtractor() {
 
     companion object: SingleExtractorFactory {
-        override fun getExtractor(): Extractor = AverageOfDistributionSummary()
+        override fun getExtractor(valueField: String): Extractor = AverageOfDistributionSummary()
     }
 
 
@@ -47,7 +47,7 @@ class AverageOfDistributionSummary : DistributionSummaryExtractor() {
 class CountOfDistributionSummary : DistributionSummaryExtractor() {
 
     companion object: SingleExtractorFactory {
-        override fun getExtractor(): Extractor = CountOfDistributionSummary()
+        override fun getExtractor(valueField: String): Extractor = CountOfDistributionSummary()
     }
 
     override val field = "count"

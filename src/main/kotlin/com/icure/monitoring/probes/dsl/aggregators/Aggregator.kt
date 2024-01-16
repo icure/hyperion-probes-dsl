@@ -8,7 +8,7 @@ import com.icure.monitoring.probes.dsl.extractors.Extractor
  * An [Aggregator] is a component that takes a [Collector] as input and produce a single [Double] value, based on the
  * concrete implementation of the interface.
  */
-sealed interface Aggregator {
+interface Aggregator {
 
     /**
      * Generates an ElasticSearch aggregation query based on an [Extractor], that will define which the field of the
