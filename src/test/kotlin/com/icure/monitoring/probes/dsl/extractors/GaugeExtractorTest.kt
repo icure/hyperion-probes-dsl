@@ -44,7 +44,7 @@ class GaugeExtractorTest : StringSpec({
             gaugeValue
         ) { gaugeValue }
 
-        val countOfGauge = GaugeExtractor.forCountAggregator("value")
+        val countOfGauge = GaugeExtractor.forCountAggregator()
         countOfGauge.valueOf(gauge) shouldBe 1.0
     }
 
@@ -53,7 +53,7 @@ class GaugeExtractorTest : StringSpec({
 
         val maxOfGauge = GaugeExtractor.forMaxAggregator("value")
         val averageOfGauge = GaugeExtractor.forAverageAggregator("value")
-        val countOfGauge = GaugeExtractor.forCountAggregator("value")
+        val countOfGauge = GaugeExtractor.forCountAggregator()
         maxOfGauge.valueOf(ds).shouldBeNull()
         averageOfGauge.valueOf(ds).shouldBeNull()
         countOfGauge.valueOf(ds).shouldBeNull()

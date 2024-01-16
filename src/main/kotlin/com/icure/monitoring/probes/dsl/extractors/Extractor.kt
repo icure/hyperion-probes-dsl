@@ -28,7 +28,7 @@ sealed interface Extractor {
 interface ExtractorFactory {
     fun forMaxAggregator(valueField: String): Extractor
     fun forAverageAggregator(valueField: String): Extractor
-    fun forCountAggregator(valueField: String): Extractor
+    fun forCountAggregator(): Extractor
 }
 
 /**

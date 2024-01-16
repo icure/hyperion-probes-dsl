@@ -66,10 +66,10 @@ open class DataAggregationChain {
      * Will aggregate the result using the [ExtractorFactory.forCountAggregator] version of the [Extractor].
      */
     @DataAggregationScope
-    fun count(valueField: String = "value", block: () -> ExtractorFactoryParams) {
+    fun count(block: () -> ExtractorFactoryParams) {
         definedAggregator = SumAggregator
         val params = block()
-        definedExtractor = params.extractor.forCountAggregator(valueField)
+        definedExtractor = params.extractor.forCountAggregator()
         collectorProducer = params.collectorProducer
     }
 

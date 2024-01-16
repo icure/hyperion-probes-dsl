@@ -10,7 +10,7 @@ sealed class DistributionSummaryExtractor : Extractor {
     companion object: ExtractorFactory {
         override fun forMaxAggregator(valueField: String) = MaxOfDistributionSummary()
         override fun forAverageAggregator(valueField: String) = AverageOfDistributionSummary()
-        override fun forCountAggregator(valueField: String) = CountOfDistributionSummary()
+        override fun forCountAggregator() = CountOfDistributionSummary()
     }
 }
 
