@@ -47,10 +47,6 @@ class ElasticProbe(
         }
     }
 
-    private val elasticUrl: String = System.getenv("MANAGEMENT_ELASTIC_METRICS_EXPORT_HOST")
-    private val elasticUsername: String? = System.getenv("MANAGEMENT_ELASTIC_METRICS_EXPORT_USERNAME")
-    private val elasticPassword: String? = System.getenv("MANAGEMENT_ELASTIC_METRICS_EXPORT_PASSWORD")
-
     private val client = HttpClient(CIO)
     private val timeWindow = config.collectorProducer().let {
         if (it is TimeWindowCollector) it.samplingDurationMillis
@@ -66,7 +62,7 @@ class ElasticProbe(
         append("]}")
     }
 
-    override suspend fun fetchData(): Set<DescriptorsWithValue>? {
+    override suspend fun fetchData(elasticUrl: String, elasticUsername: String?, elasticPassword: String?): Set<DescriptorsWithValue>? {
         val url = "$elasticUrl/$index/_search?size=0"
         val descriptors = descriptorsGenerator(NoopGauge(Id(UUID.randomUUID().toString(), Tags.empty(), null, null, Meter.Type.GAUGE)))
             .map { it.k }

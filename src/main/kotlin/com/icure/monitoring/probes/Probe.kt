@@ -63,6 +63,6 @@ abstract class SchedulableProbe(
      * Fetches the data from a remote source and aggregates them, providing a value that shall be then passed to the
      * trigger.
      */
-    abstract suspend fun fetchData(): Set<DescriptorsWithValue>?
+    abstract suspend fun fetchData(elasticUrl: String, elasticUsername: String?, elasticPassword: String?): Set<DescriptorsWithValue>?
 
 }
