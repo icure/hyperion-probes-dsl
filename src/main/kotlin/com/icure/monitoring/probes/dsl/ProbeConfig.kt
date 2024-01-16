@@ -29,6 +29,7 @@ class ProbeConfig : DataAggregationChain() {
      * An Id that uniquely identifies the probe.
      */
     var probeId: String = UUID.randomUUID().toString()
+    var timestampField = "@timestamp"
     var descriptorsGenerator: (Meter) -> List<Descriptor> = {
         listOf(descriptor { DescriptorElement(NULL_GROUP, NULL_VALUE) })
     }

@@ -17,12 +17,12 @@ open class Probe(
 ) {
     private val actionGenerators: List<ActionPayloadGenerator<*>> = config.definedActions
     val id = config.probeId
+    val timestampField = config.timestampField
     val filter = config.definedFilter
     val threshold = config.threshold
     val trigger = config.comparator
     val aggregator = config.definedAggregator
     val extractor = config.definedExtractor
-    val timestampField = "@timestamp"
 
     protected val descriptorsGenerator: (Meter) -> List<DescriptorElement> = { meter ->
         config.descriptorsGenerator(meter).map { descriptor ->
