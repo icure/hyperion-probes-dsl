@@ -8,9 +8,9 @@ import com.icure.monitoring.test.uuid
 import io.kotest.core.spec.style.StringSpec
 import io.micrometer.core.instrument.Tag
 
-class MatchNameFilterTest : StringSpec({
+class NameEqualsFilterTest : StringSpec({
 
-    "A MatchNameFilter should match only the meters that match the condition" {
+    "A NameEqualsFilter should match only the meters that match the condition" {
         val name = uuid()
         val filter = NameEqualsFilter(name)
 
@@ -18,7 +18,7 @@ class MatchNameFilterTest : StringSpec({
         filter shouldNotMatch generateMeter(uuid())
     }
 
-    "A MatchNameFilter can be combined with other filters through and" {
+    "A NameEqualsFilter can be combined with other filters through and" {
         val name = uuid()
         val tagValue = uuid()
         val compositeFilter = metricNameIs(name) and TagEqualsFilter(MetricsTags.METRIC, tagValue)
@@ -29,7 +29,7 @@ class MatchNameFilterTest : StringSpec({
         compositeFilter shouldNotMatch generateMeter()
     }
 
-    "A MatchNameFilter can be combined with other filters through or" {
+    "A NameEqualsFilter can be combined with other filters through or" {
         val name = uuid()
         val tagValue = uuid()
         val compositeFilter = metricNameIs(name) or TagEqualsFilter(MetricsTags.METRIC, tagValue)

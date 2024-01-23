@@ -20,7 +20,7 @@ data class TagEqualsFilter(
 
     override fun matches(meter: Meter): Boolean = meter.id.tags.firstOrNull { it.key == tag.tagName }?.let {
         value == it.value
-    } != null
+    } == true
     override fun toString(): String = "${tag.tagName} is $value"
     override fun toElasticQuery(): String = "\"term\":{\"${tag.queryValue}\":\"$value\"}"
 }

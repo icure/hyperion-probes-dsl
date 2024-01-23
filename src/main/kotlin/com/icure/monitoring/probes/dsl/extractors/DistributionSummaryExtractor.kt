@@ -24,6 +24,7 @@ class MaxOfDistributionSummary : DistributionSummaryExtractor() {
     }
 
     override val field = "max"
+    override val query = ""
     override fun valueOf(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().max() else null
 }
 
@@ -38,6 +39,7 @@ class AverageOfDistributionSummary : DistributionSummaryExtractor() {
 
 
     override val field = "mean"
+    override val query = ""
     override fun valueOf(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().mean() else null
 }
 
@@ -51,5 +53,6 @@ class CountOfDistributionSummary : DistributionSummaryExtractor() {
     }
 
     override val field = "count"
+    override val query = ""
     override fun valueOf(meter: Meter): Double? = if(meter is DistributionSummary) meter.takeSnapshot().count().toDouble() else null
 }

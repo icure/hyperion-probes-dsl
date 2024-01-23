@@ -13,6 +13,8 @@ sealed interface Extractor {
      */
     val field: String
 
+    val query: String
+
     /**
      * Extracts the metrics from a [Meter].
      *
@@ -49,13 +51,16 @@ fun extractor(block: (meter: Meter) -> Double?) = CustomExtractor(block)
 
 /**
  * [Extractor] that implements a custom logic.
- * Note: this cannot be used only with a registry datasource.
+ * Note: this can only be used with a registry datasource.
  */
 class CustomExtractor(
     private val extractorFunction: (meter: Meter) -> Double?
 ) : Extractor {
 
     override val field: String
+        get() = throw UnsupportedDataSourceException("This extractor is not compatible with a remote ES datasource.")
+
+    override val query: String
         get() = throw UnsupportedDataSourceException("This extractor is not compatible with a remote ES datasource.")
 
     override fun valueOf(meter: Meter): Double? = extractorFunction(meter)

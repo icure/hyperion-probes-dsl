@@ -1,5 +1,6 @@
 package com.icure.monitoring.probes.dsl.filters
 
+import com.icure.monitoring.exceptions.UnsupportedDataSourceException
 import io.micrometer.core.instrument.Meter
 import kotlinx.serialization.Serializable
 
@@ -9,9 +10,9 @@ data class RegexFilter(
     val pattern: String
 ) : SimpleFilter() {
 
-    override fun matches(meter: Meter): Boolean = meter.id.tags.firstOrNull { it.key == name }?.let {
-        Regex(pattern).find(it.value)
-    } != null
+    override fun matches(meter: Meter): Boolean {
+        throw UnsupportedDataSourceException("This filter is not compatible with a registry datasource.")
+    }
     override fun toString(): String = "$name matches $pattern"
     override fun toElasticQuery(): String = "\"regexp\":{\"$name\":{\"value\":\"$pattern\"}}"
 }

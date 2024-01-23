@@ -7,7 +7,6 @@ import io.micrometer.core.instrument.Meter
  * Base class for the hierarchy of [Extractor]s that operate on [Gauge].
  */
 abstract class GaugeExtractor : Extractor {
-    abstract val query: String
     companion object: ExtractorFactory {
         override fun forMaxAggregator(valueField: String) = GaugeValue(valueField)
         override fun forAverageAggregator(valueField: String) = GaugeValue(valueField)

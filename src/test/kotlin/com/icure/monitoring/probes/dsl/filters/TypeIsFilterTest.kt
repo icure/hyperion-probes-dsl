@@ -7,9 +7,9 @@ import com.icure.monitoring.test.uuid
 import io.kotest.core.spec.style.StringSpec
 import io.micrometer.core.instrument.Meter
 
-class MatchTypeFilterTest : StringSpec({
+class TypeIsFilterTest : StringSpec({
 
-    "A MatchTypeFilter should match only the meters that match the condition" {
+    "A TypeIsFilter should match only the meters that match the condition" {
         val meterType = Meter.Type.COUNTER
         val filter = TypeIsFilter(meterType)
 
@@ -17,7 +17,7 @@ class MatchTypeFilterTest : StringSpec({
         filter shouldNotMatch generateMeter()
     }
 
-    "A MatchTypeFilter can be combined with other filters through and" {
+    "A TypeIsFilter can be combined with other filters through and" {
         val name = uuid()
         val compositeFilter = metricNameIs(name) and meterIsAGauge()
 
@@ -26,7 +26,7 @@ class MatchTypeFilterTest : StringSpec({
         compositeFilter shouldNotMatch generateMeter(name, type = Meter.Type.DISTRIBUTION_SUMMARY)
     }
 
-    "A MatchTypeFilter can be combined with other filters through or" {
+    "A TypeIsFilter can be combined with other filters through or" {
         val name = uuid()
         val compositeFilter = metricNameIs(name) or meterIsADistribution()
 

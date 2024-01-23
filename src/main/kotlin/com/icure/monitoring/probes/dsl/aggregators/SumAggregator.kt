@@ -11,7 +11,7 @@ import com.icure.monitoring.probes.dsl.extractors.GaugeExtractor
  */
 object SumAggregator : Aggregator {
     override fun toElasticAggregation(extractor: Extractor): String =
-        """{"sum":${(extractor as GaugeExtractor).query}}"""
+        """{"sum":${extractor.query}}"""
 
     override fun aggregate(collector: Collector): Double? =
         when(collector) {

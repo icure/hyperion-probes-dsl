@@ -11,24 +11,32 @@ import kotlinx.serialization.Serializable
  *
  * @param from the lower bound of the range to match.
  * @param to the upper bound of the range to match.
+ * @param valueField the name of the field containing the value of the metric (used for ES data source).
+ * @param valueComputer the function computing the value of the metric (used for registry data source).
  */
 @Serializable
 data class MetricValueBetweenFilter(
     val from: Double,
     val to: Double,
     val valueField: String,
+    val valueComputer: (meter: Meter) -> Double,
 ) : SimpleFilter() {
 
-    override fun matches(meter: Meter): Boolean = meter is Gauge && meter.value() >= from && meter.value() <= to
+    override fun matches(meter: Meter): Boolean = valueComputer(meter) in from..to
     override fun toString(): String = "$from <= value <= $to"
     override fun toElasticQuery(): String = "\"range\":{\"$valueField\":{\"gte\":$from,\"lte\":$to}}"
 }
 
 /**
- * Generates a [MetricValueBetweenFilter] for the bounds passed as parameters.
+ * Generates a [MetricValueBetweenFilter] for a gauge, and the bounds passed as parameters.
  *
  * @param from the lower bound of the range to match.
  * @param to the upper bound of the range to match.
+ * @param valueField the name of the field containing the value of the gauge.
  * @return a [MetricValueBetweenFilter]
  */
-fun metricValueBetween(from: Double, to: Double, valueField: String = "value") = MetricValueBetweenFilter(from, to, valueField)
+fun gaugeValueBetween(
+    from: Double,
+    to: Double,
+    valueField: String = "value",
+) = MetricValueBetweenFilter(from, to, valueField) { (it as Gauge).value() }
