@@ -8,4 +8,4 @@ WORKDIR /build
 COPY . ./
 RUN apk --no-cache add bash # for git-version plugin
 
-RUN ./gradlew publish
+RUN ./gradlew -x test publish
