@@ -11,7 +11,7 @@ import com.icure.monitoring.probes.dsl.descriptors.byTag
 import com.icure.monitoring.probes.dsl.extractors.CountOfDistributionSummary
 import com.icure.monitoring.probes.dsl.extractors.DistributionSummaryExtractor
 import com.icure.monitoring.probes.dsl.filters.GenericMeterFilter
-import com.icure.monitoring.probes.dsl.filters.matches
+import com.icure.monitoring.probes.dsl.filters.isEqualTo
 import com.icure.monitoring.probes.dsl.filters.meterIsADistribution
 import com.icure.monitoring.probes.dsl.probe
 import com.icure.monitoring.probes.dsl.utils.aggregateUsing
@@ -48,7 +48,7 @@ class FHCRequestsAmountTest : StringSpec({
                     meter.id.tags.firstOrNull {
                         it.key == MetricsTags.COMPONENT.tagName
                     }?.value?.lowercase() == "fhc"
-                } and (MetricsTags.METRIC matches "totalTime")
+                } and (MetricsTags.METRIC isEqualTo "totalTime")
             }
 
             group {
@@ -71,7 +71,7 @@ class FHCRequestsAmountTest : StringSpec({
                         meter.id.tags.firstOrNull {
                             it.key == MetricsTags.COMPONENT.tagName
                         }?.value?.lowercase() == "fhc"
-                    } and (MetricsTags.METRIC matches "totalTime")
+                    } and (MetricsTags.METRIC isEqualTo "totalTime")
                 }
 
                 customAggregation {

@@ -6,6 +6,8 @@ import com.icure.monitoring.probes.dsl.ProbeConfig
 import com.icure.monitoring.probes.dsl.actions.ActionPayloadGenerator
 import com.icure.monitoring.probes.dsl.comparators.ThresholdValue
 import com.icure.monitoring.probes.dsl.descriptors.DescriptorElement
+import io.micrometer.core.instrument.Meter
+import com.icure.monitoring.probes.ElasticProbe.Companion.DescriptorsWithValue
 
 /**
  * Base class for all the Probes.
@@ -15,11 +17,18 @@ open class Probe(
 ) {
     private val actionGenerators: List<ActionPayloadGenerator<*>> = config.definedActions
     val id = config.probeId
+    val timestampField = config.timestampField
     val filter = config.definedFilter
     val threshold = config.threshold
     val trigger = config.comparator
     val aggregator = config.definedAggregator
     val extractor = config.definedExtractor
+
+    protected val descriptorsGenerator: (Meter) -> List<DescriptorElement> = { meter ->
+        config.descriptorsGenerator(meter).map { descriptor ->
+            descriptor(meter)
+        }
+    }
 
     /**
      * Checks if the value passed as parameter activates the trigger. In this case, dispatch the actions defined in the
@@ -37,7 +46,7 @@ open class Probe(
     ) {
         if (currentLevel != null && thresholdValue != null && trigger(currentLevel, thresholdValue)) {
             val payloads = actionGenerators.map { it.generate(currentLevel, thresholdValue, descriptors) }
-            availableActions.forEach { it.acceptAndDispatch(payloads) }
+            availableActions.forEach { it.acceptAndDispatch(payloads, descriptors) }
         }
     }
 }
@@ -55,6 +64,6 @@ abstract class SchedulableProbe(
      * Fetches the data from a remote source and aggregates them, providing a value that shall be then passed to the
      * trigger.
      */
-    abstract suspend fun fetchData(): Double?
+    abstract suspend fun fetchData(elasticUrl: String, elasticUsername: String?, elasticPassword: String?): Set<DescriptorsWithValue>?
 
 }

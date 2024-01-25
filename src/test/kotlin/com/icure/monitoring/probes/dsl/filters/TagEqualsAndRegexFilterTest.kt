@@ -8,18 +8,18 @@ import com.icure.monitoring.test.uuid
 import io.kotest.core.spec.style.StringSpec
 import io.micrometer.core.instrument.Tag
 
-class MatchTagFilterTest : StringSpec({
+class TagEqualsAndRegexFilterTest : StringSpec({
 
-    "A MatchTagFilter should match only the meters that match the condition" {
+    "A TagEqualsFilter should match only the meters that match the condition" {
         val tagType = MetricsTags.METRIC
         val tagValue = uuid()
-        val filter = MatchTagFilter(tagType, tagValue)
+        val filter = TagEqualsFilter(tagType, tagValue)
 
         filter shouldMatch generateMeter(tags = listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         filter shouldNotMatch generateMeter()
     }
 
-    "A MatchTagFilter can be combined with other filters through and" {
+    "A TagRegexFilter can be combined with other filters through and" {
         val name = uuid()
         val tagType = MetricsTags.METRIC
         val tagValue = "^[0-9]{5}$"
@@ -31,7 +31,7 @@ class MatchTagFilterTest : StringSpec({
         compositeFilter shouldNotMatch generateMeter()
     }
 
-    "A MatchTagFilter can be combined with other filters through or" {
+    "A TagRegexFilter can be combined with other filters through or" {
         val name = uuid()
         val tagType = MetricsTags.METRIC
         val tagValue = "^[0-9]{5}$"

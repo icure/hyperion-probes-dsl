@@ -15,7 +15,7 @@ import com.icure.monitoring.probes.dsl.descriptors.byTag
 import com.icure.monitoring.probes.dsl.extractors.CountOfDistributionSummary
 import com.icure.monitoring.probes.dsl.extractors.DistributionSummaryExtractor
 import com.icure.monitoring.probes.dsl.extractors.GaugeExtractor
-import com.icure.monitoring.probes.dsl.filters.matches
+import com.icure.monitoring.probes.dsl.filters.isEqualTo
 import com.icure.monitoring.probes.dsl.filters.meterIsADistribution
 import com.icure.monitoring.probes.dsl.filters.meterIsAGauge
 import com.icure.monitoring.probes.dsl.filters.metricNameIs
@@ -370,7 +370,7 @@ class ProbesE2ETest : StringSpec({
                 }
 
                 filter {
-                    meterIsAGauge() and (MetricsTags.HEALTH matches healthId)
+                    meterIsAGauge() and (MetricsTags.HEALTH isEqualTo healthId)
                 }
 
                 max {

@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
  * @param type the type of the [Meter] to match.
  */
 @Serializable
-data class MatchTypeFilter(
+data class TypeIsFilter(
     val type: Meter.Type
 ) : SimpleFilter() {
 
@@ -20,11 +20,11 @@ data class MatchTypeFilter(
 }
 
 /**
- * @return a [MatchTypeFilter] that matches all the [Meter]s which type is `gauge`.
+ * @return a [TypeIsFilter] that matches all the [Meter]s which type is `gauge`.
  */
-fun meterIsAGauge() = MatchTypeFilter(Meter.Type.GAUGE)
+fun meterIsAGauge() = TypeIsFilter(Meter.Type.GAUGE)
 
 /**
- * @return a [MatchTypeFilter] that matches all the [Meter]s which type is `distribution_summary`.
+ * @return a [TypeIsFilter] that matches all the [Meter]s which type is `distribution_summary`.
  */
-fun meterIsADistribution() = MatchTypeFilter(Meter.Type.DISTRIBUTION_SUMMARY)
+fun meterIsADistribution() = TypeIsFilter(Meter.Type.DISTRIBUTION_SUMMARY)

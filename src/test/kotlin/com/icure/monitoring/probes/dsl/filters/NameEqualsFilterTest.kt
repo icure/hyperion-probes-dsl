@@ -8,20 +8,20 @@ import com.icure.monitoring.test.uuid
 import io.kotest.core.spec.style.StringSpec
 import io.micrometer.core.instrument.Tag
 
-class MatchNameFilterTest : StringSpec({
+class NameEqualsFilterTest : StringSpec({
 
-    "A MatchNameFilter should match only the meters that match the condition" {
+    "A NameEqualsFilter should match only the meters that match the condition" {
         val name = uuid()
-        val filter = MatchNameFilter(name)
+        val filter = NameEqualsFilter(name)
 
         filter shouldMatch generateMeter(name)
         filter shouldNotMatch generateMeter(uuid())
     }
 
-    "A MatchNameFilter can be combined with other filters through and" {
+    "A NameEqualsFilter can be combined with other filters through and" {
         val name = uuid()
         val tagValue = uuid()
-        val compositeFilter = metricNameIs(name) and MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val compositeFilter = metricNameIs(name) and TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         compositeFilter shouldMatch generateMeter(name, listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldNotMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
@@ -29,10 +29,10 @@ class MatchNameFilterTest : StringSpec({
         compositeFilter shouldNotMatch generateMeter()
     }
 
-    "A MatchNameFilter can be combined with other filters through or" {
+    "A NameEqualsFilter can be combined with other filters through or" {
         val name = uuid()
         val tagValue = uuid()
-        val compositeFilter = metricNameIs(name) or MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val compositeFilter = metricNameIs(name) or TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         compositeFilter shouldMatch generateMeter(name, listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))

@@ -22,11 +22,6 @@ class RegistryProbe(
 
     private val collectors = ConcurrentHashMap<Set<DescriptorElement>, Collector>()
     private val newCollector = config.collectorProducer
-    private val descriptorsGenerator: (Meter) -> Set<DescriptorElement> = { meter ->
-        config.descriptorsGenerator(meter).map { descriptor ->
-            descriptor(meter)
-        }.toSet()
-    }
 
     /**
      * Receives a [Meter] from a registry and store its value if:
@@ -41,7 +36,7 @@ class RegistryProbe(
         val extractedValue = extractor.valueOf(meter)
         if(extractedValue != null && registryId == submittingRegistryId && filter.matches(meter)) {
             val descriptors = descriptorsGenerator(meter)
-            collectors.getOrPut(descriptors) { newCollector() }.addValue(extractedValue)
+            collectors.getOrPut(descriptors.toSet()) { newCollector() }.addValue(extractedValue)
         }
         if(threshold is RegistryThreshold) {
             threshold.receiveMeter(meter, submittingRegistryId)

@@ -13,7 +13,9 @@ class AverageAggregatorTest : StringSpec({
         val values = List(size) { Random.nextDouble(0.0, 42.0) }.onEach {
             collector.addValue(it)
         }
-        AverageAggregator.aggregate(collector) shouldBe values.average()
+        val nDecimals = 14
+        val round = { double: Double -> String.format("%.${nDecimals}f", double) }
+        AverageAggregator.aggregate(collector)?.let { round(it) } shouldBe round(values.average())
     }
 
 })

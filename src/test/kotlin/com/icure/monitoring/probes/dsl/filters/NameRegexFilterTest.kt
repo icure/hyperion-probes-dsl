@@ -21,7 +21,7 @@ class NameRegexFilterTest : StringSpec({
     "A NameRegexFilter can be combined with other filters through and" {
         val pattern = "^[a-z]{3,5}$"
         val tagValue = uuid()
-        val compositeFilter = metricNameMatches(pattern) and MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val compositeFilter = metricNameMatches(pattern) and TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         compositeFilter shouldMatch generateMeter("match", listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldNotMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
@@ -32,7 +32,7 @@ class NameRegexFilterTest : StringSpec({
     "A NameRegexFilter can be combined with other filters through or" {
         val pattern = "^[a-z]{3,5}$"
         val tagValue = uuid()
-        val compositeFilter = metricNameMatches(pattern) or MatchTagFilter(MetricsTags.METRIC, tagValue)
+        val compositeFilter = metricNameMatches(pattern) or TagEqualsFilter(MetricsTags.METRIC, tagValue)
 
         compositeFilter shouldMatch generateMeter("match", listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))
         compositeFilter shouldMatch generateMeter(uuid(), listOf(Tag.of(MetricsTags.METRIC.tagName, tagValue)))

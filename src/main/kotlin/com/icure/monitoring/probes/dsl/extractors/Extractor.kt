@@ -13,6 +13,8 @@ sealed interface Extractor {
      */
     val field: String
 
+    val query: String
+
     /**
      * Extracts the metrics from a [Meter].
      *
@@ -26,8 +28,8 @@ sealed interface Extractor {
  * Factory method that instantiates different implementation of an [Extractor] based on the aggregator to apply.
  */
 interface ExtractorFactory {
-    fun forMaxAggregator(): Extractor
-    fun forAverageAggregator(): Extractor
+    fun forMaxAggregator(valueField: String): Extractor
+    fun forAverageAggregator(valueField: String): Extractor
     fun forCountAggregator(): Extractor
 }
 
@@ -35,7 +37,7 @@ interface ExtractorFactory {
  * An interface that instantiate a single implementation of an [Extractor]. It is useful to keep the DSL coherent.
  */
 interface SingleExtractorFactory {
-    fun getExtractor(): Extractor
+    fun getExtractor(valueField: String): Extractor
 }
 
 /**
@@ -49,13 +51,16 @@ fun extractor(block: (meter: Meter) -> Double?) = CustomExtractor(block)
 
 /**
  * [Extractor] that implements a custom logic.
- * Note: this cannot be used only with a registry datasource.
+ * Note: this can only be used with a registry datasource.
  */
 class CustomExtractor(
     private val extractorFunction: (meter: Meter) -> Double?
 ) : Extractor {
 
     override val field: String
+        get() = throw UnsupportedDataSourceException("This extractor is not compatible with a remote ES datasource.")
+
+    override val query: String
         get() = throw UnsupportedDataSourceException("This extractor is not compatible with a remote ES datasource.")
 
     override fun valueOf(meter: Meter): Double? = extractorFunction(meter)

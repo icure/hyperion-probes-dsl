@@ -5,24 +5,24 @@ import kotlinx.serialization.Serializable
 
 /**
  * A [Filter] that matches the [Meter]s that have the name specified as parameter.
- * On ElasticSearch, uses the match operation. That is why differs from [NameRegexFilter].
+ * On ElasticSearch, uses the term operation. That is why differs from [NameRegexFilter].
  *
  * @param query the name of the meter to match.
  */
 @Serializable
-data class MatchNameFilter(
+data class NameEqualsFilter(
     val query: String
 ) : SimpleFilter() {
 
     override fun matches(meter: Meter): Boolean = meter.id.name == query
-    override fun toString(): String = "name matches $query"
-    override fun toElasticQuery(): String = "\"match\":{\"name\":\"$query\"}"
+    override fun toString(): String = "name is $query"
+    override fun toElasticQuery(): String = "\"term\":{\"name\":\"$query\"}"
 }
 
 /**
- * Generates a [MatchNameFilter] for the name passed as parameter.
+ * Generates a [NameEqualsFilter] for the name passed as parameter.
  *
  * @param name the metric name to match.
- * @return a [MatchNameFilter]
+ * @return a [NameEqualsFilter]
  */
-fun metricNameIs(name: String) = MatchNameFilter(name)
+fun metricNameIs(name: String) = NameEqualsFilter(name)

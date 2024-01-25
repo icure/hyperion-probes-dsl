@@ -29,7 +29,8 @@ class ProbeConfig : DataAggregationChain() {
      * An Id that uniquely identifies the probe.
      */
     var probeId: String = UUID.randomUUID().toString()
-    var descriptorsGenerator: (Meter) -> Collection<Descriptor> = {
+    var timestampField = "@timestamp"
+    var descriptorsGenerator: (Meter) -> List<Descriptor> = {
         listOf(descriptor { DescriptorElement(NULL_GROUP, NULL_VALUE) })
     }
     lateinit var comparator: Comparator
@@ -40,7 +41,7 @@ class ProbeConfig : DataAggregationChain() {
      * Defines a collection of [Descriptor]s that will be used to group the results.
      */
     @ProbeScope
-    fun group(block: (Meter) -> Collection<Descriptor>) {
+    fun group(block: (Meter) -> List<Descriptor>) {
         descriptorsGenerator = block
     }
 

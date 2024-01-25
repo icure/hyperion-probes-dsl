@@ -17,14 +17,14 @@ data class AndFilter(
         when(other) {
             is AndFilter -> copy(filters = filters + other.filters)
             is OrFilter -> copy(filters = filters + other)
-            is MatchTagFilter -> copy(filters = filters + other)
+            is SimpleFilter -> copy(filters = filters + other)
             else -> this
         }
     override infix fun or(other: Filter) =
         when(other) {
             is AndFilter -> OrFilter(filters = listOf(this, other))
             is OrFilter -> OrFilter(filters = listOf(this, other))
-            is MatchTagFilter -> OrFilter(filters = listOf(this, other))
+            is SimpleFilter -> OrFilter(filters = listOf(this, other))
             else -> this
         }
 

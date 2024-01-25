@@ -26,7 +26,7 @@ infix fun ExtractorFactory.over(duration: Duration) = ExtractorFactoryParams(thi
  * @param duration the [Duration] of the time window.
  * @return a configuration that will be ultimately used to generate a [TimeWindowCollector].
  */
-infix fun SingleExtractorFactory.over(duration: Duration) = ExtractorParams(this.getExtractor()) {
+infix fun SingleExtractorFactory.over(duration: Duration) = ExtractorParams(this.getExtractor("value")) {
     TimeWindowCollector(duration, Duration.ofSeconds(60))
 }
 
@@ -52,7 +52,7 @@ infix fun ExtractorFactory.over(windowParams: Pair<Duration, Duration>) = Extrac
  * window, the second the defines the sampling interval.
  * @return a configuration that will be ultimately used to generate a [TimeWindowCollector].
  */
-infix fun SingleExtractorFactory.over(windowParams: Pair<Duration, Duration>) = ExtractorParams(this.getExtractor()) {
+infix fun SingleExtractorFactory.over(windowParams: Pair<Duration, Duration>) = ExtractorParams(this.getExtractor("value")) {
     TimeWindowCollector(windowParams.first, windowParams.second)
 }
 
@@ -72,7 +72,7 @@ infix fun Int.lastProducedBy(extractor: ExtractorFactory) = ExtractorFactoryPara
  * @param extractor an [SingleExtractorFactory].
  * @return a configuration that will be ultimately used to generate a [FixedSizeCollector].
  */
-infix fun Int.lastProducedBy(extractor: SingleExtractorFactory) = ExtractorParams(extractor.getExtractor()) {
+infix fun Int.lastProducedBy(extractor: SingleExtractorFactory) = ExtractorParams(extractor.getExtractor("value")) {
     FixedSizeCollector(this)
 }
 
