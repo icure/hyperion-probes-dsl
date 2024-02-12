@@ -18,7 +18,7 @@ abstract class GaugeExtractor : Extractor {
  * Extracts the value from a [Gauge].
  */
 class GaugeValue(valueField: String) : GaugeExtractor() {
-    override val field: String = "value"
+    override val field: String = valueField
     override val query: String = """{"field":"$valueField"}"""
 
     companion object: SingleExtractorFactory {
