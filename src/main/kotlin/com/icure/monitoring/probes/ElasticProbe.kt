@@ -5,6 +5,7 @@ import com.icure.monitoring.probes.dsl.collectors.TimeWindowCollector
 import com.icure.monitoring.probes.dsl.descriptors.DescriptorElement
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -47,7 +48,13 @@ class ElasticProbe(
         }
     }
 
-    private val client = HttpClient(CIO)
+    private val client = HttpClient(CIO) {
+        install(HttpTimeout) {
+            requestTimeoutMillis = 30_000
+            connectTimeoutMillis = 5_000
+            socketTimeoutMillis = 10_000
+        }
+    }
     private val timeWindow = config.collectorProducer().let {
         if (it is TimeWindowCollector) it.timeFrame.toMillis()
         else throw IllegalArgumentException("Only TimeWindowCollector is supported in probe ${config.probeId}")
