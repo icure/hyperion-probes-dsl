@@ -15,5 +15,6 @@ data class JiraActionPayload(
     val title: String,
     val description: String,
     val autoCloseAfter: Long?,
+    val issueType: String? = null,
     val customFields: Map<String, String> = emptyMap(),
 ): ActionPayload
