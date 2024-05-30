@@ -9,6 +9,9 @@ package com.icure.monitoring.actions.payload
  * it will be the content of the comment that will be added.
  * @param autoCloseAfter if set, the number of milliseconds after the last modification of the ticket after which the
  * ticket will be auto closed. If null, the ticket will never be closed automatically.
+ * @param customFields a [Map] containing additional custom fields to set in the ticket
+ * @param value the value that triggered the action.
+ * @param threshold the threshold value.
  */
 data class JiraActionPayload(
     val ticketId: String,
@@ -17,4 +20,6 @@ data class JiraActionPayload(
     val autoCloseAfter: Long?,
     val issueType: String? = null,
     val customFields: Map<String, String> = emptyMap(),
+    val value: Double,
+    val threshold: Double? = null
 ): ActionPayload
