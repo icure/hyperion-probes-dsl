@@ -55,13 +55,14 @@ class HealthCheckProbeTest : StringSpec({
             fixedThreshold { 1.0 }
 
             action {
-                jira { _, _, descriptors ->
+                jira { value, _, descriptors ->
                     val name = descriptors.firstOrNull()?.v ?: "UNKNOWN"
                     JiraActionPayload(
                         ticketId = "HealthChecks-$name",
                         title = "$name is not available",
                         description = "Check services availability and certificate validity",
-                        autoCloseAfter = Duration.ofHours(2).toMillis()
+                        autoCloseAfter = Duration.ofHours(2).toMillis(),
+                        value = value
                     )
                 }
             }

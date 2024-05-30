@@ -91,7 +91,8 @@ class FHCRequestsAmountTest : StringSpec({
                         ticketId = "fhc_number_of_requests_per_node_on_$node",
                         title = "Too many requests on FHC $node ($value)",
                         description = "Number of requests is $value, average of all node over the last 5 minutes is: $threshold",
-                        autoCloseAfter = Duration.ofMinutes(30).toMillis()
+                        autoCloseAfter = Duration.ofMinutes(30).toMillis(),
+                        value = value
                     )
                 }
             }

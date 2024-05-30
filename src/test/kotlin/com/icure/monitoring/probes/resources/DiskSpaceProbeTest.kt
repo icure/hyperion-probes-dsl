@@ -9,7 +9,6 @@ import com.icure.monitoring.probes.dsl.aggregators.aggregator
 import com.icure.monitoring.probes.dsl.descriptors.byTag
 import com.icure.monitoring.probes.dsl.extractors.GaugeValue
 import com.icure.monitoring.probes.dsl.filters.isEqualTo
-import com.icure.monitoring.probes.dsl.filters.metricNameIs
 import com.icure.monitoring.probes.dsl.probe
 import com.icure.monitoring.probes.dsl.utils.aggregateUsing
 import com.icure.monitoring.probes.dsl.utils.lastProducedBy
@@ -59,7 +58,8 @@ class DiskSpaceProbeTest : StringSpec({
 						ticketId = "disk_space_exceeded_limit_$node",
 						title = "Disk space critical $value% on $node",
 						description = "Threshold value is $threshold registered value is $value",
-						autoCloseAfter = null
+						autoCloseAfter = null,
+						value = value
 					)
 				}
 			}
@@ -89,6 +89,7 @@ class DiskSpaceProbeTest : StringSpec({
 		generator.generate(40).forEach {
 			probe.receiveMeter(it, registry)
 		}
+		@Suppress("UNCHECKED_CAST")
 		probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
 		fakeJiraAction.payloads.size shouldBe 1
 		fakeJiraAction.payloads.first().ticketId shouldBe "disk_space_exceeded_limit_couchdb-01-lim-05"

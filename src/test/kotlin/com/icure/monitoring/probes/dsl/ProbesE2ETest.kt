@@ -73,7 +73,8 @@ class ProbesE2ETest : StringSpec({
                         ticketId = probeId,
                         title = "$value-$threshold",
                         description = descriptors.first().v,
-                        autoCloseAfter = null
+                        autoCloseAfter = null,
+                        value = value,
                     )
                 }
             }
@@ -122,7 +123,7 @@ class ProbesE2ETest : StringSpec({
             }
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads.size shouldBe 1
-            fakeJiraAction.payloads.first() shouldBe JiraActionPayload(probeId, "11.0-$threshold", NO_TAG,null)
+            fakeJiraAction.payloads.first() shouldBe JiraActionPayload(probeId, "11.0-$threshold", NO_TAG,null, value = 11.0)
         }
 
         "Probe 1 - Happy flow, multiple groups" {
@@ -139,8 +140,8 @@ class ProbesE2ETest : StringSpec({
             }
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "11.0-$threshold", g1,null),
-                JiraActionPayload(probeId, "11.0-$threshold", g2,null)
+                JiraActionPayload(probeId, "11.0-$threshold", g1,null, value = 11.0),
+                JiraActionPayload(probeId, "11.0-$threshold", g2,null, value = 11.0)
             )
         }
 
@@ -157,7 +158,7 @@ class ProbesE2ETest : StringSpec({
                 probe.receiveMeter(distribution, registryId)
             }
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
-            fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(JiraActionPayload(probeId, "11.0-$threshold", g1,null))
+            fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(JiraActionPayload(probeId, "11.0-$threshold", g1,null, value = 11.0))
         }
     }
 
@@ -215,7 +216,8 @@ class ProbesE2ETest : StringSpec({
                         ticketId = probeId,
                         title = "$value-$threshold",
                         description = descriptors.joinToString("-"){ it.v },
-                        autoCloseAfter = null
+                        autoCloseAfter = null,
+                        value = value
                     )
                 }
             }
@@ -271,7 +273,7 @@ class ProbesE2ETest : StringSpec({
             baseline.forEach { probe.receiveMeter(it, registryId) }
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "$outlierValue-$threshold", "$NO_TAG-$NO_TAG",null)
+                JiraActionPayload(probeId, "$outlierValue-$threshold", "$NO_TAG-$NO_TAG",null, value = outlierValue)
             )
         }
 
@@ -297,8 +299,8 @@ class ProbesE2ETest : StringSpec({
             baseline.forEach { probe.receiveMeter(it, registryId) }
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "$outlierValue-$threshold", "$backend-$h1",null),
-                JiraActionPayload(probeId, "$outlierValue-$threshold", "$NO_TAG-$h2",null)
+                JiraActionPayload(probeId, "$outlierValue-$threshold", "$backend-$h1",null, value = outlierValue),
+                JiraActionPayload(probeId, "$outlierValue-$threshold", "$NO_TAG-$h2",null, value = outlierValue)
             )
         }
 
@@ -324,7 +326,7 @@ class ProbesE2ETest : StringSpec({
             baseline.forEach { probe.receiveMeter(it, registryId) }
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "$outlierValue-$threshold", "$backend-$h1",null),
+                JiraActionPayload(probeId, "$outlierValue-$threshold", "$backend-$h1",null, value = outlierValue),
             )
         }
     }
@@ -384,7 +386,8 @@ class ProbesE2ETest : StringSpec({
                         ticketId = probeId,
                         title = "$value-$threshold",
                         description = descriptors.joinToString("-"){ it.v },
-                        autoCloseAfter = null
+                        autoCloseAfter = null,
+                        value = value
                     )
                 }
             }
@@ -433,7 +436,7 @@ class ProbesE2ETest : StringSpec({
             probe.receiveMeter(dist, registryId)
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "10.0-1.0", NO_TAG,null)
+                JiraActionPayload(probeId, "10.0-1.0", NO_TAG,null, value = 10.0)
             )
         }
 
@@ -453,8 +456,8 @@ class ProbesE2ETest : StringSpec({
             probe.receiveMeter(dist2, registryId)
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "10.0-1.0", h1,null),
-                JiraActionPayload(probeId, "10.0-1.0", h2,null)
+                JiraActionPayload(probeId, "10.0-1.0", h1,null, value = 20.0),
+                JiraActionPayload(probeId, "10.0-1.0", h2,null, value = 20.0)
             )
         }
 
@@ -477,7 +480,7 @@ class ProbesE2ETest : StringSpec({
             probe.receiveMeter(dist2, registryId)
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "16.0-12.0", h1,null)
+                JiraActionPayload(probeId, "16.0-12.0", h1,null, value = 15.0)
             )
         }
     }
