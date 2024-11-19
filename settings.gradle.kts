@@ -1,3 +1,5 @@
+@file:Suppress("UnstableApiUsage")
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -7,4 +9,18 @@ pluginManagement {
         maven { url = uri("https://jitpack.io") }
     }
 }
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        google()
+        mavenLocal()
+        mavenCentral()
+        maven { url = uri("https://maven.taktik.be/content/groups/public") }
+        maven { url = uri("https://jitpack.io") }
+        maven { url = uri("https://repo.spring.io/plugins-release") }
+    }
+
+}
+
 rootProject.name = "hyperion-probes-dsl"

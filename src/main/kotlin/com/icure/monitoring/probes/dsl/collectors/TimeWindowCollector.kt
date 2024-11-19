@@ -53,13 +53,15 @@ class TimeWindowCollector(
         }
     }
 
-    private fun getBucketsInTimeWindow() = if((clock.wallTime() - instantiationTime) >= timeFrame.toMillis()) {
-        (clock.wallTime() / samplingDurationMillis).let { currentIndex ->
-            buckets.filterKeys { k ->
-                k >= (currentIndex - sampledTimeFrame)
-            }.values
-        }
-    } else null
+    private fun getBucketsInTimeWindow() =
+        // If a whole timeframe has not passed yet, my results are incomplete
+        if((clock.wallTime() - instantiationTime) >= timeFrame.toMillis()) {
+            (clock.wallTime() / samplingDurationMillis).let { currentIndex ->
+                buckets.filterKeys { k ->
+                    k >= (currentIndex - sampledTimeFrame)
+                }.values
+            }
+        } else null
 
     override fun getValues(): List<Double>? = getBucketsInTimeWindow()?.flatMap { bucket ->
         bucket.histogram.nonEmptyBinsAscending().flatMap { bin ->
