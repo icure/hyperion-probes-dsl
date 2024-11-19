@@ -22,11 +22,12 @@ import com.icure.monitoring.probes.dsl.filters.metricNameIs
 import com.icure.monitoring.probes.dsl.utils.aggregateUsing
 import com.icure.monitoring.probes.dsl.utils.and
 import com.icure.monitoring.probes.dsl.utils.lastProducedBy
-import com.icure.monitoring.probes.dsl.utils.over
+import com.icure.monitoring.test.fake.FakeClock
 import com.icure.monitoring.test.fake.FakeDistributionSummary
 import com.icure.monitoring.test.fake.FakeJiraAction
 import com.icure.monitoring.test.generateGauge
 import com.icure.monitoring.test.generateMeter
+import com.icure.monitoring.test.over
 import com.icure.monitoring.test.uuid
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -170,31 +171,9 @@ class ProbesE2ETest : StringSpec({
         val baselineValue = 1.0
         val baselineCount = 10
 
-        fun generateProbe() = probe {
-            this.probeId = probeId
-            dataSource {
-                registry {
-                    this.registryId = registryId
-                }
-            }
-
-            filter {
-                meterIsADistribution() and metricNameIs(meterName)
-            }
-
-            group {
-                byTag(MetricsTags.BACKEND) and byTag(MetricsTags.HEALTH)
-            }
-
-            average {
-                DistributionSummaryExtractor over Duration.ofMinutes(1)
-            }
-
-            compare { value, referenceValue ->
-                value > (referenceValue * 3)
-            }
-
-            threshold {
+        fun generateProbe(clock: FakeClock, windowSize: Duration): RegistryProbe {
+            val probe = probe {
+                this.probeId = probeId
                 dataSource {
                     registry {
                         this.registryId = registryId
@@ -202,46 +181,76 @@ class ProbesE2ETest : StringSpec({
                 }
 
                 filter {
-                    meterIsADistribution()
+                    meterIsADistribution() and metricNameIs(meterName)
+                }
+
+                group {
+                    byTag(MetricsTags.BACKEND) and byTag(MetricsTags.HEALTH)
                 }
 
                 average {
-                    DistributionSummaryExtractor over Duration.ofMinutes(1)
+                    DistributionSummaryExtractor.over(windowSize, clock)
                 }
-            }
 
-            action {
-                jira { value, threshold, descriptors ->
-                    JiraActionPayload(
-                        ticketId = probeId,
-                        title = "$value-$threshold",
-                        description = descriptors.joinToString("-"){ it.v },
-                        autoCloseAfter = null,
-                        value = value
-                    )
+                compare { value, referenceValue ->
+                    value > (referenceValue * 3)
                 }
-            }
 
-            action {
-                log { _, _, _ ->
-                    LogActionPayload("Test", LogLevel.DEBUG)
+                threshold {
+                    dataSource {
+                        registry {
+                            this.registryId = registryId
+                        }
+                    }
+
+                    filter {
+                        meterIsADistribution()
+                    }
+
+                    average {
+                        DistributionSummaryExtractor.over(windowSize, clock)
+                    }
                 }
-            }
-        } as RegistryProbe
+
+                action {
+                    jira { value, threshold, descriptors ->
+                        JiraActionPayload(
+                            ticketId = probeId,
+                            title = "$value-$threshold",
+                            description = descriptors.joinToString("-"){ it.v },
+                            autoCloseAfter = null,
+                            value = value
+                        )
+                    }
+                }
+
+                action {
+                    log { _, _, _ ->
+                        LogActionPayload("Test", LogLevel.DEBUG)
+                    }
+                }
+            } as RegistryProbe
+            return probe
+        }
 
         "Probe 2 - Sad flow: correct value, wrong probe type" {
-            val probe = generateProbe()
+            val duration = Duration.ofMinutes(1)
+            val clock = FakeClock()
+            val probe = generateProbe(clock, duration)
             val fakeJiraAction = FakeJiraAction()
             (0 until  baselineCount).forEach { _ ->
                 probe.receiveMeter(generateGauge(meterName, value = outlierValue), registryId)
                 probe.receiveMeter(generateGauge(value = baselineValue), registryId)
             }
+            clock.advance(duration.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads.shouldBeEmpty()
         }
 
         "Probe 2 - Sad flow: Correct value, but the probe does not match the filter" {
-            val probe = generateProbe()
+            val duration = Duration.ofMinutes(1)
+            val clock = FakeClock()
+            val probe = generateProbe(clock, duration)
             val fakeJiraAction = FakeJiraAction()
             val dist = FakeDistributionSummary()
             val baseline = List(10) { FakeDistributionSummary("${uuid()}-$it")}
@@ -253,13 +262,16 @@ class ProbesE2ETest : StringSpec({
             }
             probe.receiveMeter(dist, registryId)
             baseline.forEach { probe.receiveMeter(it, registryId) }
+            clock.advance(duration.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads.shouldBeEmpty()
         }
 
         "Probe 2 - Happy flow, no group found" {
             val threshold = (outlierValue + (baselineCount * baselineValue)) / (baselineCount + 1)
-            val probe = generateProbe()
+            val duration = Duration.ofMinutes(1)
+            val clock = FakeClock()
+            val probe = generateProbe(clock, duration)
             val fakeJiraAction = FakeJiraAction()
             val dist = FakeDistributionSummary(meterName)
             val baseline = List(10) { FakeDistributionSummary("${uuid()}-$it")}
@@ -271,6 +283,7 @@ class ProbesE2ETest : StringSpec({
             }
             probe.receiveMeter(dist, registryId)
             baseline.forEach { probe.receiveMeter(it, registryId) }
+            clock.advance(duration.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
                 JiraActionPayload(probeId, "$outlierValue-$threshold", "$NO_TAG-$NO_TAG",null, value = outlierValue)
@@ -279,7 +292,9 @@ class ProbesE2ETest : StringSpec({
 
         "Probe 2 - Happy flow, multiple groups" {
             val threshold = (outlierValue + outlierValue + (baselineCount * 2 * baselineValue)) / ((baselineCount * 2) + 2)
-            val probe = generateProbe()
+            val duration = Duration.ofMinutes(1)
+            val clock = FakeClock()
+            val probe = generateProbe(clock, duration)
             val fakeJiraAction = FakeJiraAction()
             val backend = uuid()
             val h1 = uuid()
@@ -297,6 +312,7 @@ class ProbesE2ETest : StringSpec({
             probe.receiveMeter(dist1, registryId)
             probe.receiveMeter(dist2, registryId)
             baseline.forEach { probe.receiveMeter(it, registryId) }
+            clock.advance(duration.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
                 JiraActionPayload(probeId, "$outlierValue-$threshold", "$backend-$h1",null, value = outlierValue),
@@ -306,7 +322,9 @@ class ProbesE2ETest : StringSpec({
 
         "Probe 2 - Happy flow, multiple groups but only one triggered" {
             val threshold = (outlierValue + (outlierValue /2) + (baselineCount * 2 * baselineValue)) / ((baselineCount * 2) + 2)
-            val probe = generateProbe()
+            val duration = Duration.ofMinutes(1)
+            val clock = FakeClock()
+            val probe = generateProbe(clock, duration)
             val fakeJiraAction = FakeJiraAction()
             val backend = uuid()
             val h1 = uuid()
@@ -324,6 +342,7 @@ class ProbesE2ETest : StringSpec({
             probe.receiveMeter(dist1, registryId)
             probe.receiveMeter(dist2, registryId)
             baseline.forEach { probe.receiveMeter(it, registryId) }
+            clock.advance(duration.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
                 JiraActionPayload(probeId, "$outlierValue-$threshold", "$backend-$h1",null, value = outlierValue),
@@ -338,69 +357,74 @@ class ProbesE2ETest : StringSpec({
         val healthId = uuid()
         val triggerId = uuid()
 
-        fun generateProbe() = probe {
-            this.probeId = probeId
-            dataSource {
-                registry {
-                    this.registryId = registryId
-                }
-            }
-
-            filter {
-                meterIsADistribution() and metricNameIs(meterName)
-            }
-
-            group {
-                listOf(byTag(MetricsTags.BACKEND))
-            }
-
-            customAggregation {
-                CountOfDistributionSummary over Duration.ofSeconds(600) aggregateUsing aggregator {
-                    it.getValues()?.sum()
-                }
-            }
-
-            compare { value, referenceValue ->
-                value > referenceValue
-            }
-
-            threshold {
+        fun generateProbe(clock: FakeClock, windowSize: Duration): RegistryProbe {
+            val probe = probe {
+                this.probeId = probeId
                 dataSource {
                     registry {
-                        this.registryId = triggerId
+                        this.registryId = registryId
                     }
                 }
 
                 filter {
-                    meterIsAGauge() and (MetricsTags.HEALTH isEqualTo healthId)
+                    meterIsADistribution() and metricNameIs(meterName)
                 }
 
-                max {
-                    5 lastProducedBy GaugeExtractor
+                group {
+                    listOf(byTag(MetricsTags.BACKEND))
                 }
-            }
 
-            action {
-                jira { value, threshold, descriptors ->
-                    JiraActionPayload(
-                        ticketId = probeId,
-                        title = "$value-$threshold",
-                        description = descriptors.joinToString("-"){ it.v },
-                        autoCloseAfter = null,
-                        value = value
-                    )
+                customAggregation {
+                    CountOfDistributionSummary.over(windowSize, clock) aggregateUsing aggregator {
+                        it.getValues()?.sum()
+                    }
                 }
-            }
 
-            action {
-                log { _, _, _ ->
-                    LogActionPayload("Test", LogLevel.DEBUG)
+                compare { value, referenceValue ->
+                    value > referenceValue
                 }
-            }
-        } as RegistryProbe
+
+                threshold {
+                    dataSource {
+                        registry {
+                            this.registryId = triggerId
+                        }
+                    }
+
+                    filter {
+                        meterIsAGauge() and (MetricsTags.HEALTH isEqualTo healthId)
+                    }
+
+                    max {
+                        5 lastProducedBy GaugeExtractor
+                    }
+                }
+
+                action {
+                    jira { value, threshold, descriptors ->
+                        JiraActionPayload(
+                            ticketId = probeId,
+                            title = "$value-$threshold",
+                            description = descriptors.joinToString("-"){ it.v },
+                            autoCloseAfter = null,
+                            value = value
+                        )
+                    }
+                }
+
+                action {
+                    log { _, _, _ ->
+                        LogActionPayload("Test", LogLevel.DEBUG)
+                    }
+                }
+            } as RegistryProbe
+            return probe
+        }
 
         "Probe 3 - Sad flow: correct value, wrong probe type" {
-            val probe = generateProbe()
+            val clock = FakeClock()
+            val windowSize = Duration.ofSeconds(600)
+            val probe = generateProbe(clock, windowSize)
             val fakeJiraAction = FakeJiraAction()
             val distribution = FakeDistributionSummary()
             distribution.record(1000.0)
@@ -408,12 +432,15 @@ class ProbesE2ETest : StringSpec({
                 probe.receiveMeter(generateGauge(meterName, value = 10.0), registryId)
                 probe.receiveMeter(generateGauge(value = 10.0), triggerId)
             }
+            clock.advance(windowSize.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads.shouldBeEmpty()
         }
 
         "Probe 3 - Sad flow: Correct value, but the probe does not match the filter" {
-            val probe = generateProbe()
+            val clock = FakeClock()
+            val windowSize = Duration.ofSeconds(600)
+            val probe = generateProbe(clock, windowSize)
             val fakeJiraAction = FakeJiraAction()
             val dist = FakeDistributionSummary()
             (0 until 10).forEach { _ ->
@@ -421,12 +448,15 @@ class ProbesE2ETest : StringSpec({
                 probe.receiveMeter(generateGauge(value = 11.0), triggerId)
             }
             probe.receiveMeter(dist, registryId)
+            clock.advance(windowSize.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads.shouldBeEmpty()
         }
 
         "Probe 3 - Happy flow, no group found" {
-            val probe = generateProbe()
+            val clock = FakeClock()
+            val windowSize = Duration.ofSeconds(600)
+            val probe = generateProbe(clock, windowSize)
             val fakeJiraAction = FakeJiraAction()
             val dist = FakeDistributionSummary(meterName)
             (0 until 10).forEach { _ ->
@@ -434,6 +464,7 @@ class ProbesE2ETest : StringSpec({
                 probe.receiveMeter(generateGauge(tags = listOf(Tag.of(MetricsTags.HEALTH.tagName, healthId)), value = 1.0), triggerId)
             }
             probe.receiveMeter(dist, registryId)
+            clock.advance(windowSize.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
                 JiraActionPayload(probeId, "10.0-1.0", NO_TAG,null, value = 10.0)
@@ -441,7 +472,9 @@ class ProbesE2ETest : StringSpec({
         }
 
         "Probe 3 - Happy flow, multiple groups" {
-            val probe = generateProbe()
+            val clock = FakeClock()
+            val windowSize = Duration.ofSeconds(600)
+            val probe = generateProbe(clock, windowSize)
             val fakeJiraAction = FakeJiraAction()
             val h1 = uuid()
             val h2 = uuid()
@@ -454,15 +487,18 @@ class ProbesE2ETest : StringSpec({
             }
             probe.receiveMeter(dist1, registryId)
             probe.receiveMeter(dist2, registryId)
+            clock.advance(windowSize.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "10.0-1.0", h1,null, value = 20.0),
-                JiraActionPayload(probeId, "10.0-1.0", h2,null, value = 20.0)
+                JiraActionPayload(probeId, "10.0-1.0", h1,null, value = 10.0),
+                JiraActionPayload(probeId, "10.0-1.0", h2,null, value = 10.0)
             )
         }
 
         "Probe 3 - Happy flow, multiple groups but only one triggered" {
-            val probe = generateProbe()
+            val clock = FakeClock()
+            val windowSize = Duration.ofSeconds(600)
+            val probe = generateProbe(clock, windowSize)
             val fakeJiraAction = FakeJiraAction()
             val h1 = uuid()
             val h2 = uuid()
@@ -478,9 +514,10 @@ class ProbesE2ETest : StringSpec({
             }
             probe.receiveMeter(dist1, registryId)
             probe.receiveMeter(dist2, registryId)
+            clock.advance(windowSize.toMillis())
             probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
             fakeJiraAction.payloads shouldContainExactlyInAnyOrder listOf(
-                JiraActionPayload(probeId, "16.0-12.0", h1,null, value = 15.0)
+                JiraActionPayload(probeId, "16.0-12.0", h1,null, value = 16.0)
             )
         }
     }

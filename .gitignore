@@ -36,3 +36,4 @@ atlassian-ide-plugin.xml
 .shelf
 
 src/test/resources/logs
+.kotlin

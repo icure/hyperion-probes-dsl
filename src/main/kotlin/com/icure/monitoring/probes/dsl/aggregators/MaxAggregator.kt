@@ -14,7 +14,7 @@ object MaxAggregator : Aggregator {
 
     override fun aggregate(collector: Collector): Double? =
         when(collector) {
-            is FixedSizeCollector -> collector.getValues().max()
+            is FixedSizeCollector -> collector.getValues().maxOrNull()
             is TimeWindowCollector -> collector.max()
         }
 }
