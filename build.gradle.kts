@@ -1,21 +1,21 @@
 plugins {
-    alias(libs.plugins.kotlin)
-    alias(libs.plugins.kotlinxSerialization)
+    alias(dslLibs.plugins.kotlin)
+    alias(dslLibs.plugins.kotlinxSerialization)
 }
 
 dependencies {
-    implementation(libs.bundles.ktorClient)
+    implementation(dslLibs.bundles.ktorClient)
 
-    implementation(libs.micrometer)
-    implementation(libs.dynahist)
-    implementation(libs.kotlinxSerialization)
+    implementation(dslLibs.micrometer)
+    implementation(dslLibs.dynahist)
+    implementation(dslLibs.kotlinxSerialization)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.kotestCore)
-    testImplementation(libs.kotestRunner)
-    testImplementation(libs.apacheRngSimple)
-    testImplementation(libs.apacheRngSampling)
+    testImplementation(dslLibs.junit)
+    testImplementation(dslLibs.mockk)
+    testImplementation(dslLibs.kotestCore)
+    testImplementation(dslLibs.kotestRunner)
+    testImplementation(dslLibs.apacheRngSimple)
+    testImplementation(dslLibs.apacheRngSampling)
 }
 
 tasks.test {

@@ -21,6 +21,12 @@ dependencyResolutionManagement {
         maven { url = uri("https://repo.spring.io/plugins-release") }
     }
 
+    versionCatalogs {
+        create("dslLibs") {
+            from(files("./gradle/libs.versions.toml"))
+        }
+    }
+
 }
 
 rootProject.name = "hyperion-probes-dsl"
