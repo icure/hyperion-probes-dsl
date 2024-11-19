@@ -4,12 +4,11 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.bundles.ktorClient)
+
     implementation(libs.micrometer)
     implementation(libs.dynahist)
     implementation(libs.kotlinxSerialization)
-    implementation(libs.ktorClientCore)
-    implementation(libs.ktorClientCio)
-    implementation(libs.ktorClientContentNegotiation)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

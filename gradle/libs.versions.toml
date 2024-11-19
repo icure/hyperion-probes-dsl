@@ -23,6 +23,9 @@ kotestRunner = { group = "io.kotest", name = "kotest-runner-junit5", version.ref
 apacheRngSimple = { group = "org.apache.commons", name = "commons-rng-simple", version.ref = "apacheCommons" }
 apacheRngSampling = { group = "org.apache.commons", name = "commons-rng-sampling", version.ref = "apacheCommons" }
 
+[bundles]
+ktorClient = ["ktorClientCore", "ktorClientCio", "ktorClientContentNegotiation"]
+
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinxSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
