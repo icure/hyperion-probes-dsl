@@ -45,14 +45,14 @@ class HealthCheckProbeTest : StringSpec({
             }
 
             customAggregation {
-                3 lastProducedBy GaugeValue aggregateUsing aggregator { collector ->
-                    collector.getValues()?.takeIf { it.size > 2 }?.average()
+                5 lastProducedBy GaugeValue aggregateUsing aggregator { collector ->
+                    collector.getValues()?.takeIf { it.size == 5 }?.average()
                 }
             }
 
             compare { value, referenceValue -> value < referenceValue }
 
-            fixedThreshold { 1.0 }
+            fixedThreshold { 0.75 }
 
             action {
                 jira { value, _, descriptors ->
@@ -61,7 +61,7 @@ class HealthCheckProbeTest : StringSpec({
                         ticketId = "HealthChecks-$name",
                         title = "$name is not available",
                         description = "Check services availability and certificate validity",
-                        autoCloseAfter = Duration.ofHours(2).toMillis(),
+                        autoCloseAfter = Duration.ofMinutes(5).toMillis(),
                         value = value
                     )
                 }
@@ -75,7 +75,7 @@ class HealthCheckProbeTest : StringSpec({
                 VariableTag(MetricsTags.TCP_PORT) { "444" },
                 VariableTag(MetricsTags.NODE_ID) { "couchdb-02-lim-05" }
             ),
-            { 0.8 },
+            { 0.7 },
             byName
         )
 
@@ -89,10 +89,10 @@ class HealthCheckProbeTest : StringSpec({
             byName
         )
 
-        triggerGenerator.generate(4).forEach {
+        generator.generate(40).forEach {
             probe.receiveMeter(it, registry)
         }
-        generator.generate(40).forEach {
+        triggerGenerator.generate(5).forEach {
             probe.receiveMeter(it, registry)
         }
         probe.checkAndDispatch(listOf(fakeJiraAction as Action<ActionPayload>))
