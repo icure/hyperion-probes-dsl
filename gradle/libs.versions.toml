@@ -1,7 +1,7 @@
 [versions]
 kotlin = "2.0.0"
 micrometer = "1.13.6"
-dynahist = "1.4"
+hdrHistogram = "2.2.2"
 kotlinxSerialization = "1.7.3"
 ktor = "3.0.0"
 jupiter = "5.10.3"
@@ -11,7 +11,7 @@ apacheCommons = "1.5"
 
 [libraries]
 micrometer = { group = "io.micrometer", name = "micrometer-core", version.ref = "micrometer" }
-dynahist = { group = "com.dynatrace.dynahist", name = "dynahist", version.ref = "dynahist"}
+hdrHistogram = { group = "org.hdrhistogram", name = "HdrHistogram", version.ref = "hdrHistogram"}
 kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ktorClientCore = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktorClientCio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }

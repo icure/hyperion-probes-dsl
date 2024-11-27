@@ -1,38 +1,43 @@
 package com.icure.monitoring.meters
 
-import com.dynatrace.dynahist.Histogram
-import com.dynatrace.dynahist.layout.Layout
 import io.micrometer.core.instrument.distribution.CountAtBucket
 import io.micrometer.core.instrument.distribution.HistogramSnapshot
 import io.micrometer.core.instrument.distribution.ValueAtPercentile
+import org.HdrHistogram.Histogram
+import org.HdrHistogram.Recorder
 import java.io.PrintStream
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.max
 
 data class HistogramBucket(
-	val histogram: Histogram,
-	private var sumAccumulator: Double = 0.0,
-	private var maxAccumulator: Double = 0.0
+	val recorder: Recorder,
+	private val sumAccumulator: AtomicLong = AtomicLong(0),
+	private val maxAccumulator: AtomicLong = AtomicLong(0),
 ) {
 	companion object {
-		fun create(layout: Layout) = HistogramBucket(Histogram.createDynamic(layout))
+		fun create(lowestValue: Long, highestValue: Long, significantDigits: Int) =
+			HistogramBucket(Recorder(lowestValue, highestValue, significantDigits))
 	}
-	val sum: Double get() = sumAccumulator
-	val max: Double get() = maxAccumulator
+	val sum: Long get() = sumAccumulator.get()
+	val max: Long get() = maxAccumulator.get()
+	val histogram: Histogram get() = recorder.intervalHistogram
 
 	fun addValue(amount: Double) {
-		histogram.addValue(amount)
-		sumAccumulator += amount
-		maxAccumulator = max(maxAccumulator, amount)
+		recorder.recordValue(amount.toLong())
+		sumAccumulator.addAndGet(amount.toLong())
+		maxAccumulator.accumulateAndGet(amount.toLong()) { current, new -> max(current, new) }
 	}
 
 	fun toHistogramSnapshot(percentiles: Iterable<Double>? = null, summaryOutput: ((PrintStream, Double) -> Unit)? = null): HistogramSnapshot =
-		histogram.preprocessedCopy.let { immutableHistogram ->
+		recorder.intervalHistogram.let { histogram ->
 			HistogramSnapshot(
-				immutableHistogram.totalCount,
-				sum,
-				max,
-				percentiles?.map { ValueAtPercentile(it, immutableHistogram.getQuantile(it)) }?.toTypedArray(),
-				immutableHistogram.nonEmptyBinsAscending().map { CountAtBucket(it.binIndex.toDouble(), it.binCount.toDouble()) }.toTypedArray(),
+				histogram.totalCount,
+				sum.toDouble(),
+				max.toDouble(),
+				percentiles?.map { ValueAtPercentile(it, histogram.getValueAtPercentile(it).toDouble()) }?.toTypedArray(),
+				histogram.recordedValues().map {
+					CountAtBucket(it.valueIteratedTo.toDouble(), it.countAtValueIteratedTo.toDouble())
+				}.toTypedArray(),
 				summaryOutput
 			)
 		}
