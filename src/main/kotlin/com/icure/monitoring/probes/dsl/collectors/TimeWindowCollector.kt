@@ -94,9 +94,13 @@ class TimeWindowCollector(
      * Since each bucket in the window already computes an average, the average of the average is taken. This converges
      * to the statistical average as per [LLN](https://en.wikipedia.org/wiki/Law_of_large_numbers).
      */
-    fun average(): Double? = getBucketsInTimeWindow()?.takeIf {
+    fun average(): Double? = getBucketsInTimeWindow()?.mapNotNull {
+        it.histogram.totalCount.takeIf { count ->
+            count > 0
+        }?.let { count ->
+            it.sum / count
+        }
+    }?.takeIf {
         it.isNotEmpty()
-    }?.map {
-        it.sum / it.histogram.totalCount
     }?.average()
 }
