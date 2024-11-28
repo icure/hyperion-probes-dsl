@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.max
 
 data class HistogramBucket(
-	val recorder: Recorder,
+	private val recorder: Recorder,
 	private val sumAccumulator: AtomicLong = AtomicLong(0),
 	private val maxAccumulator: AtomicLong = AtomicLong(0),
 ) {
@@ -20,7 +20,10 @@ data class HistogramBucket(
 	}
 	val sum: Long get() = sumAccumulator.get()
 	val max: Long get() = maxAccumulator.get()
-	val histogram: Histogram get() = recorder.intervalHistogram
+	private var recorderSnapshot: Histogram? = null
+	val histogram: Histogram get() = recorderSnapshot ?: recorder.intervalHistogram.also {
+		recorderSnapshot = it
+	}
 
 	fun addValue(amount: Double) {
 		recorder.recordValue(amount.toLong())
@@ -29,7 +32,7 @@ data class HistogramBucket(
 	}
 
 	fun toHistogramSnapshot(percentiles: Iterable<Double>? = null, summaryOutput: ((PrintStream, Double) -> Unit)? = null): HistogramSnapshot =
-		recorder.intervalHistogram.let { histogram ->
+		histogram.let { histogram ->
 			HistogramSnapshot(
 				histogram.totalCount,
 				sum.toDouble(),
