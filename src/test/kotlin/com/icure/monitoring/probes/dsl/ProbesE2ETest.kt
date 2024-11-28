@@ -19,15 +19,16 @@ import com.icure.monitoring.probes.dsl.filters.isEqualTo
 import com.icure.monitoring.probes.dsl.filters.meterIsADistribution
 import com.icure.monitoring.probes.dsl.filters.meterIsAGauge
 import com.icure.monitoring.probes.dsl.filters.metricNameIs
+import com.icure.monitoring.probes.dsl.utils.SamplingParameters
 import com.icure.monitoring.probes.dsl.utils.aggregateUsing
 import com.icure.monitoring.probes.dsl.utils.and
 import com.icure.monitoring.probes.dsl.utils.lastProducedBy
+import com.icure.monitoring.probes.dsl.utils.sampledWith
 import com.icure.monitoring.test.fake.FakeClock
 import com.icure.monitoring.test.fake.FakeDistributionSummary
 import com.icure.monitoring.test.fake.FakeJiraAction
 import com.icure.monitoring.test.generateGauge
 import com.icure.monitoring.test.generateMeter
-import com.icure.monitoring.test.over
 import com.icure.monitoring.test.uuid
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeEmpty
@@ -35,6 +36,7 @@ import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
 import io.kotest.matchers.shouldBe
 import io.micrometer.core.instrument.Tag
 import java.time.Duration
+import kotlin.math.floor
 
 class ProbesE2ETest : StringSpec({
 
@@ -189,7 +191,7 @@ class ProbesE2ETest : StringSpec({
                 }
 
                 average {
-                    DistributionSummaryExtractor.over(windowSize, clock)
+                    DistributionSummaryExtractor sampledWith SamplingParameters(timeFrame = windowSize, clock = clock)
                 }
 
                 compare { value, referenceValue ->
@@ -208,7 +210,7 @@ class ProbesE2ETest : StringSpec({
                     }
 
                     average {
-                        DistributionSummaryExtractor.over(windowSize, clock)
+                        DistributionSummaryExtractor sampledWith SamplingParameters(timeFrame = windowSize, clock = clock)
                     }
                 }
 
@@ -268,7 +270,7 @@ class ProbesE2ETest : StringSpec({
         }
 
         "Probe 2 - Happy flow, no group found" {
-            val threshold = (outlierValue + (baselineCount * baselineValue)) / (baselineCount + 1)
+            val threshold = floor((outlierValue + (baselineCount * baselineValue)) / (baselineCount + 1))
             val duration = Duration.ofMinutes(1)
             val clock = FakeClock()
             val probe = generateProbe(clock, duration)
@@ -291,7 +293,7 @@ class ProbesE2ETest : StringSpec({
         }
 
         "Probe 2 - Happy flow, multiple groups" {
-            val threshold = (outlierValue + outlierValue + (baselineCount * 2 * baselineValue)) / ((baselineCount * 2) + 2)
+            val threshold = floor((outlierValue + outlierValue + (baselineCount * 2 * baselineValue)) / ((baselineCount * 2) + 2))
             val duration = Duration.ofMinutes(1)
             val clock = FakeClock()
             val probe = generateProbe(clock, duration)
@@ -321,7 +323,7 @@ class ProbesE2ETest : StringSpec({
         }
 
         "Probe 2 - Happy flow, multiple groups but only one triggered" {
-            val threshold = (outlierValue + (outlierValue /2) + (baselineCount * 2 * baselineValue)) / ((baselineCount * 2) + 2)
+            val threshold = floor((outlierValue + (outlierValue /2) + (baselineCount * 2 * baselineValue)) / ((baselineCount * 2) + 2))
             val duration = Duration.ofMinutes(1)
             val clock = FakeClock()
             val probe = generateProbe(clock, duration)
@@ -375,7 +377,13 @@ class ProbesE2ETest : StringSpec({
                 }
 
                 customAggregation {
-                    CountOfDistributionSummary.over(windowSize, clock) aggregateUsing aggregator {
+                    CountOfDistributionSummary sampledWith SamplingParameters(
+                        timeFrame = windowSize,
+                        clock = clock,
+                        lowestValue = 1,
+                        highestValue = 1_000_000,
+                        significantDigits = 2
+                    ) aggregateUsing aggregator {
                         it.getValues()?.sum()
                     }
                 }

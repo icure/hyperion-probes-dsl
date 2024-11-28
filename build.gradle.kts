@@ -7,7 +7,7 @@ dependencies {
     implementation(dslLibs.bundles.ktorClient)
 
     implementation(dslLibs.micrometer)
-    implementation(dslLibs.dynahist)
+    implementation(dslLibs.hdrHistogram)
     implementation(dslLibs.kotlinxSerialization)
 
     testImplementation(dslLibs.junit)

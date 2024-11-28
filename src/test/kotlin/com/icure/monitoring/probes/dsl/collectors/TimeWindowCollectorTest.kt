@@ -10,11 +10,18 @@ class TimeWindowCollectorTest : StringSpec({
     "When using a TimeWindowCollector, only the samples in the window are considered" {
         val clock = FakeClock()
         var now = clock.wallTime()
-        val collector = TimeWindowCollector(Duration.ofMinutes(1), Duration.ofSeconds(1), clock)
+        val collector = TimeWindowCollector(
+            timeFrame = Duration.ofMinutes(1),
+            samplingDuration = Duration.ofSeconds(1),
+            clock = clock,
+            lowestValue = 1,
+            highestValue = 1_000_000,
+            significantDigits = 3
+        )
         collector.addValue(42.0)
 
         val size = 60
-        val commonValue = 1.0
+        val commonValue = 100.0
         val offset = 1_000L
 
         (0 .. size).forEach { _ ->
@@ -23,13 +30,20 @@ class TimeWindowCollectorTest : StringSpec({
             collector.addValue(commonValue)
         }
         collector.getValues() shouldBe (0 .. size).map { commonValue }
-        collector.max() shouldBe 1.0
+        collector.max() shouldBe commonValue
     }
 
     "A TimeWindowCollector will aggregate the samples with the specified granularity" {
         val clock = FakeClock()
         val timeFrame = Duration.ofMinutes(1)
-        val collector = TimeWindowCollector(timeFrame, Duration.ofSeconds(1), clock)
+        val collector = TimeWindowCollector(
+            timeFrame = timeFrame,
+            samplingDuration = Duration.ofSeconds(1),
+            clock = clock,
+            lowestValue = 1,
+            highestValue = 1_000_000,
+            significantDigits = 3
+        )
 
         // I advance the clock of one timeframe,
         // otherwise the collector will return null because less than a timeframe passed
