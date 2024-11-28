@@ -34,7 +34,10 @@ data class HistogramBucket(
 				histogram.totalCount,
 				sum.toDouble(),
 				max.toDouble(),
-				percentiles?.map { ValueAtPercentile(it, histogram.getValueAtPercentile(it).toDouble()) }?.toTypedArray(),
+				percentiles?.map {
+					// Micrometer wants the percentiles expressed between 0 and 1, HdrHistogram wants them between 0 and 100
+					ValueAtPercentile(it / 100, histogram.getValueAtPercentile(it).toDouble())
+				}?.toTypedArray(),
 				histogram.recordedValues().map {
 					CountAtBucket(it.valueIteratedTo.toDouble(), it.countAtValueIteratedTo.toDouble())
 				}.toTypedArray(),
