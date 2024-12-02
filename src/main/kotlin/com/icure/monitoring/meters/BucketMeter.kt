@@ -18,6 +18,11 @@ interface BucketMeter<T> : Meter {
     fun getTimestamps(): List<Long>
 
     /**
+     * @return the timestamp of the current active bucket.
+     */
+    fun getActiveBucketTimestamp(): Long?
+
+    /**
      * Removes the buckets related to the timestamps passed as parameter
      */
     fun clearBuckets(ids: Collection<Long>)
