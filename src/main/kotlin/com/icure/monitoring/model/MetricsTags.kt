@@ -37,4 +37,6 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     DESIGN_VIEW("view", "view"),
     NETWORK_INTERFACE("network.interface", "network_interface"),
     URL("url", "url"),
+    SERVICE_NAME("service.name", "service_name"),
+    REPLICA_ID("replica.id", "replica_id"),
 }
