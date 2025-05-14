@@ -9,6 +9,7 @@ dependencies {
     implementation(dslLibs.micrometer)
     implementation(dslLibs.hdrHistogram)
     implementation(dslLibs.kotlinxSerialization)
+    implementation(dslLibs.guava)
 
     testImplementation(dslLibs.junit)
     testImplementation(dslLibs.mockk)

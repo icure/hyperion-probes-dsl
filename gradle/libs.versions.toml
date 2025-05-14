@@ -22,6 +22,7 @@ kotestCore = { group = "io.kotest", name = "kotest-assertions-core-jvm", version
 kotestRunner = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
 apacheRngSimple = { group = "org.apache.commons", name = "commons-rng-simple", version.ref = "apacheCommons" }
 apacheRngSampling = { group = "org.apache.commons", name = "commons-rng-sampling", version.ref = "apacheCommons" }
+guava = { group = "com.google.guava", name = "guava", version = "33.4.8-jre" }
 
 [bundles]
 ktorClient = ["ktorClientCore", "ktorClientCio", "ktorClientContentNegotiation"]
