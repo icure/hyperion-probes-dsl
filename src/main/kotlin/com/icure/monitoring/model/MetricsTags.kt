@@ -15,6 +15,7 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     COMPONENT("component", "component"),
     HTTP_STATUS("httpstatus", "httpstatus"),
     COUCHDB_GROUP("couchdb.group", "couchdb_group"),
+    COUCHDB_DB("couchdb.db", "couchdb_db"),
     USAGE_GROUP("usage.group", "usage_group"),
     USAGE_METHOD("usage.method", "usage_method"),
     USAGE_PATH("usage.path", "usage_path"),
