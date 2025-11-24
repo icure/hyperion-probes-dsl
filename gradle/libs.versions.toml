@@ -15,6 +15,7 @@ hdrHistogram = { group = "org.hdrhistogram", name = "HdrHistogram", version.ref 
 kotlinxSerialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 ktorClientCore = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktorClientCio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
+ktorClientOkHttp = { group = "io.ktor", name = "ktor-client-okhttp", version.ref = "ktor" }
 ktorClientContentNegotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
 junit = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "jupiter" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
@@ -25,7 +26,7 @@ apacheRngSampling = { group = "org.apache.commons", name = "commons-rng-sampling
 guava = { group = "com.google.guava", name = "guava", version = "33.4.8-jre" }
 
 [bundles]
-ktorClient = ["ktorClientCore", "ktorClientCio", "ktorClientContentNegotiation"]
+ktorClient = ["ktorClientCore", "ktorClientCio", "ktorClientOkHttp", "ktorClientContentNegotiation"]
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
