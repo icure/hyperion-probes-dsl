@@ -9,5 +9,6 @@ enum class HyperionInstance {
 	GSC_PRD,
 	GSC_ACC,
 	BU,
-	LOGIVAL_GW
+	LOGIVAL_GW,
+	SVB
 }
