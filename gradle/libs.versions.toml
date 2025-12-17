@@ -1,5 +1,5 @@
 [versions]
-kotlin = "2.0.0"
+kotlin = "2.2.0"
 micrometer = "1.13.6"
 hdrHistogram = "2.2.2"
 kotlinxSerialization = "1.7.3"
