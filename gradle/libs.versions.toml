@@ -1,9 +1,9 @@
 [versions]
-kotlin = "2.2.0"
+kotlin = "2.2.21"
 micrometer = "1.13.6"
 hdrHistogram = "2.2.2"
 kotlinxSerialization = "1.7.3"
-ktor = "3.0.0"
+ktor = "3.3.3"
 jupiter = "5.10.3"
 mockk = "1.13.12"
 kotest = "5.9.1"
