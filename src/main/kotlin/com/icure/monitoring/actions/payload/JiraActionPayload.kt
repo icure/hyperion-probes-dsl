@@ -20,6 +20,7 @@ data class JiraActionPayload(
     val autoCloseAfter: Long?,
     val issueType: String? = null,
     val customFields: Map<String, String> = emptyMap(),
+    val displayCustomFields: Map<String, String> = emptyMap(),
     val value: Double,
     val threshold: Double? = null
 ): ActionPayload
