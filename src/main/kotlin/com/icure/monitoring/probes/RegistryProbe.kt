@@ -16,50 +16,50 @@ import java.util.concurrent.ConcurrentHashMap
  * @param config a [ProbeConfig].
  */
 class RegistryProbe(
-    private val registryId: String,
-    config: ProbeConfig
+	private val registryId: String,
+	config: ProbeConfig
 ) : Probe(config) {
 
-    private val collectors = ConcurrentHashMap<Set<DescriptorElement>, Collector>()
-    private val newCollector = config.collectorProducer
+	private val collectors = ConcurrentHashMap<Set<DescriptorElement>, Collector>()
+	private val newCollector = config.collectorProducer
 
-    /**
-     * Receives a [Meter] from a registry and store its value if:
-     * - the meter has a non-null value.
-     * - the registry that is submitting them meter has the same ID as the one defined when instantiating the probe.
-     * - the meter matches the [com.icure.monitoring.probes.dsl.filters.Filter] defined in the probe.
-     *
-     * @param meter the [Meter] to receive.
-     * @param submittingRegistryId the id of the submitting registry.
-     */
-    suspend fun receiveMeter(meter: Meter, submittingRegistryId: String) {
-        val extractedValue = extractor.valueOf(meter)
-        if(extractedValue != null && registryId == submittingRegistryId && filter.matches(meter)) {
-            val descriptors = descriptorsGenerator(meter)
-            collectors.getOrPut(descriptors.toSet()) { newCollector() }.addValue(extractedValue)
-        }
-        if(threshold is RegistryThreshold) {
-            threshold.receiveMeter(meter, submittingRegistryId)
-        }
-    }
+	/**
+	 * Receives a [Meter] from a registry and store its value if:
+	 * - the meter has a non-null value.
+	 * - the registry that is submitting them meter has the same ID as the one defined when instantiating the probe.
+	 * - the meter matches the [com.icure.monitoring.probes.dsl.filters.Filter] defined in the probe.
+	 *
+	 * @param meter the [Meter] to receive.
+	 * @param submittingRegistryId the id of the submitting registry.
+	 */
+	suspend fun receiveMeter(meter: Meter, submittingRegistryId: String) {
+		val extractedValue = extractor.valueOf(meter)
+		if(extractedValue != null && registryId == submittingRegistryId && filter.matches(meter)) {
+			val descriptors = descriptorsGenerator(meter)
+			collectors.getOrPut(descriptors.toSet()) { newCollector() }.addValue(extractedValue)
+		}
+		if(threshold is RegistryThreshold) {
+			threshold.receiveMeter(meter, submittingRegistryId)
+		}
+	}
 
-    /**
-     * Aggregates the values collected and compares them against the defined threshold using the
-     * [com.icure.monitoring.probes.dsl.comparators.Comparator] defined in the config.
-     * If the comparator returns true, then the appropriate actions are dispatched.
-     *
-     * @param availableActions the actions registered in the system.
-     */
-    fun checkAndDispatch(availableActions: List<Action<ActionPayload>>) {
-        val thresholdValue = threshold.getValue()
-        collectors.forEach { (descriptors, collector) ->
-            dispatchActionsOnTriggerActivation(
-                aggregator.aggregate(collector),
-                thresholdValue,
-                descriptors,
-                availableActions
-            )
-        }
-    }
+	/**
+	 * Aggregates the values collected and compares them against the defined threshold using the
+	 * [com.icure.monitoring.probes.dsl.comparators.Comparator] defined in the config.
+	 * If the comparator returns true, then the appropriate actions are dispatched.
+	 *
+	 * @param availableActions the actions registered in the system.
+	 */
+	fun checkAndDispatch(availableActions: List<Action<ActionPayload>>) {
+		val thresholdValue = threshold.getValue()
+		collectors.forEach { (descriptors, collector) ->
+			dispatchActionsOnTriggerActivation(
+				aggregator.aggregate(collector),
+				thresholdValue,
+				descriptors,
+				availableActions
+			)
+		}
+	}
 
 }

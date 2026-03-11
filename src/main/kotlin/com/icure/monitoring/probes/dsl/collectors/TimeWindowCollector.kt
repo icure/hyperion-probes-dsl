@@ -23,84 +23,84 @@ import java.time.Duration
  * [System.currentTimeMillis].
  */
 class TimeWindowCollector(
-    val timeFrame: Duration,
-    samplingDuration: Duration,
-    private val clock: Clock = Clock.SYSTEM,
-    private val lowestValue: Long = 10,
-    private val highestValue: Long = 1_000_000_000,
-    private val significantDigits: Int = 2,
+	val timeFrame: Duration,
+	samplingDuration: Duration,
+	private val clock: Clock = Clock.SYSTEM,
+	private val lowestValue: Long = 10,
+	private val highestValue: Long = 1_000_000_000,
+	private val significantDigits: Int = 2,
 ) : Collector {
 
-    private val instantiationTime = clock.wallTime()
-    private val sampledTimeFrame = timeFrame.toMillis() / samplingDuration.toMillis()
-    private val samplingDurationMillis = samplingDuration.toMillis()
-    private val buckets = mutableMapOf<Long, HistogramBucket>()
-    private val bucketsMutex = Mutex()
+	private val instantiationTime = clock.wallTime()
+	private val sampledTimeFrame = timeFrame.toMillis() / samplingDuration.toMillis()
+	private val samplingDurationMillis = samplingDuration.toMillis()
+	private val buckets = mutableMapOf<Long, HistogramBucket>()
+	private val bucketsMutex = Mutex()
 
-    override suspend fun addValue(value: Double) {
-        bucketsMutex.withLock {
-            val currentIndex = clock.wallTime() / samplingDurationMillis
-            buckets.getOrPut(currentIndex) {
-                HistogramBucket.create(
-                    lowestValue = lowestValue,
-                    highestValue = highestValue,
-                    significantDigits = significantDigits
-                )
-            }.addValue(value)
-            val indicesToRemove = buckets.mapNotNull { (k, _) ->
-                if(k < (currentIndex - sampledTimeFrame)) k
-                else null
-            }
-            indicesToRemove.forEach {
-                buckets.remove(it)
-            }
+	override suspend fun addValue(value: Double) {
+		bucketsMutex.withLock {
+			val currentIndex = clock.wallTime() / samplingDurationMillis
+			buckets.getOrPut(currentIndex) {
+				HistogramBucket.create(
+					lowestValue = lowestValue,
+					highestValue = highestValue,
+					significantDigits = significantDigits
+				)
+			}.addValue(value)
+			val indicesToRemove = buckets.mapNotNull { (k, _) ->
+				if(k < (currentIndex - sampledTimeFrame)) k
+				else null
+			}
+			indicesToRemove.forEach {
+				buckets.remove(it)
+			}
 
-        }
-    }
+		}
+	}
 
-    private fun getBucketsInTimeWindow() =
-        // If a whole timeframe has not passed yet, my results are incomplete
-        if((clock.wallTime() - instantiationTime) >= timeFrame.toMillis()) {
-            (clock.wallTime() / samplingDurationMillis).let { currentIndex ->
-                buckets.filterKeys { k ->
-                    k >= (currentIndex - sampledTimeFrame)
-                }.values
-            }
-        } else null
+	private fun getBucketsInTimeWindow() =
+		// If a whole timeframe has not passed yet, my results are incomplete
+		if((clock.wallTime() - instantiationTime) >= timeFrame.toMillis()) {
+			(clock.wallTime() / samplingDurationMillis).let { currentIndex ->
+				buckets.filterKeys { k ->
+					k >= (currentIndex - sampledTimeFrame)
+				}.values
+			}
+		} else null
 
-    override fun getValues(): List<Double>? = getBucketsInTimeWindow()?.flatMap { bucket ->
-        bucket.histogram.recordedValues().flatMap { bin ->
-            List(bin.countAtValueIteratedTo.toInt()) {
-                bin.valueIteratedTo.toDouble()
-            }
-        }
-    }
+	override fun getValues(): List<Double>? = getBucketsInTimeWindow()?.flatMap { bucket ->
+		bucket.histogram.recordedValues().flatMap { bin ->
+			List(bin.countAtValueIteratedTo.toInt()) {
+				bin.valueIteratedTo.toDouble()
+			}
+		}
+	}
 
-    /**
-     * @return the maximum value registered in the time window. Note: differently from the values returned by
-     * [getValues], this is NOT approximated.
-     */
-    fun max(): Double? = getBucketsInTimeWindow()?.maxOfOrNull { it.max }?.toDouble()
+	/**
+	 * @return the maximum value registered in the time window. Note: differently from the values returned by
+	 * [getValues], this is NOT approximated.
+	 */
+	fun max(): Double? = getBucketsInTimeWindow()?.maxOfOrNull { it.max }?.toDouble()
 
-    /**
-     * @return the sum of the values registered in the time window. Note: differently from the values returned by
-     *      * [getValues], this is NOT approximated.
-     */
-    fun sum(): Double? = getBucketsInTimeWindow()?.sumOf { it.sum }?.toDouble()
+	/**
+	 * @return the sum of the values registered in the time window. Note: differently from the values returned by
+	 *      * [getValues], this is NOT approximated.
+	 */
+	fun sum(): Double? = getBucketsInTimeWindow()?.sumOf { it.sum }?.toDouble()
 
-    /**
-     * @return the average value registered in the time window. Note: differently from the values returned by
-     * [getValues], this is NOT approximated.
-     * Since each bucket in the window already computes an average, the average of the average is taken. This converges
-     * to the statistical average as per [LLN](https://en.wikipedia.org/wiki/Law_of_large_numbers).
-     */
-    fun average(): Double? = getBucketsInTimeWindow()?.mapNotNull {
-        it.histogram.totalCount.takeIf { count ->
-            count > 0
-        }?.let { count ->
-            it.sum / count
-        }
-    }?.takeIf {
-        it.isNotEmpty()
-    }?.average()
+	/**
+	 * @return the average value registered in the time window. Note: differently from the values returned by
+	 * [getValues], this is NOT approximated.
+	 * Since each bucket in the window already computes an average, the average of the average is taken. This converges
+	 * to the statistical average as per [LLN](https://en.wikipedia.org/wiki/Law_of_large_numbers).
+	 */
+	fun average(): Double? = getBucketsInTimeWindow()?.mapNotNull {
+		it.histogram.totalCount.takeIf { count ->
+			count > 0
+		}?.let { count ->
+			it.sum / count
+		}
+	}?.takeIf {
+		it.isNotEmpty()
+	}?.average()
 }
