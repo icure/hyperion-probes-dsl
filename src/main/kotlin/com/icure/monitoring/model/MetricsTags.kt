@@ -40,4 +40,5 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     URL("url", "url"),
     SERVICE_NAME("service.name", "service_name"),
     REPLICA_ID("replica.id", "replica_id"),
+    IMAGE("image", "image"),
 }
