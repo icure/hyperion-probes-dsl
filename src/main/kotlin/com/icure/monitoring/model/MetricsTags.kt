@@ -21,6 +21,7 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     USAGE_PATH("usage.path", "usage_path"),
     CONTAINER_ID("container.id", "container_id"),
     STORAGE_TYPE("storage.type", "storage_type"),
+    STORAGE_DEVICE("storage.device", "storage_device"),
     KRAKEN_GROUP("group", "group"),
     ENTITY_TYPE("entity.type", "entity_type"),
     DISK_NAME("diskName", "diskName"),
