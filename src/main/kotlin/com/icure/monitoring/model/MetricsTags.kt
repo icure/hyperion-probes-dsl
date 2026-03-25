@@ -3,7 +3,7 @@ package com.icure.monitoring.model
 @Suppress("unused")
 enum class MetricsTags(val tagName: String, val queryValue: String) {
     NAMESPACE("location.namespace", "location_namespace"),
-    INSTANCE_ID("location.instance.id", "location_instance_id"),
+    LOCATION_INSTANCE_ID("location.instance.id", "location_instance_id"),
     NODE_ID("location.node.id", "location_node_id"),
     POD_ID("pod.id", "pod_id"),
     METRIC("metric", "metric"),
@@ -39,6 +39,7 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     DESIGN_VIEW("view", "view"),
     NETWORK_INTERFACE("network.interface", "network_interface"),
     URL("url", "url"),
+    INSTANCE_ID("instance.id", "instance_id"),
     SERVICE_NAME("service.name", "service_name"),
     REPLICA_ID("replica.id", "replica_id"),
     IMAGE("image", "image"),
