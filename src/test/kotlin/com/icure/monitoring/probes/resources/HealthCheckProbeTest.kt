@@ -70,10 +70,10 @@ class HealthCheckProbeTest : StringSpec({
 
         val triggerGenerator = GaugeGenerator(
             { "http.service.health.check.444.couchdb-02-lim-05" },
-            listOf(Tag.of(MetricsTags.NAMESPACE.tagName, "couchdb")),
+            listOf(Tag.of(MetricsTags.LOCATION_NAMESPACE.tagName, "couchdb")),
             listOf(
                 VariableTag(MetricsTags.TCP_PORT) { "444" },
-                VariableTag(MetricsTags.NODE_ID) { "couchdb-02-lim-05" }
+                VariableTag(MetricsTags.LOCATION_NODE_ID) { "couchdb-02-lim-05" }
             ),
             { 0.7 },
             byName
@@ -81,7 +81,7 @@ class HealthCheckProbeTest : StringSpec({
 
         val generator = GaugeGenerator(
             { "http.service.health.check.${listOf(443,444,445).random()}.couchdb-01-${listOf("lim", "rbx")}-0${Random.nextInt(1,6)}" },
-            listOf(Tag.of(MetricsTags.NAMESPACE.tagName, "couchdb")),
+            listOf(Tag.of(MetricsTags.LOCATION_NAMESPACE.tagName, "couchdb")),
             listOf(
                 VariableTag(MetricsTags.TCP_PORT) { listOf("443","444","445").random() },
             ),

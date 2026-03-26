@@ -18,7 +18,7 @@ class DescriptorTest : StringSpec({
     }
 
     "the byTag descriptor can extract the tag value from a meter" {
-        val tagType = MetricsTags.NODE_ID
+        val tagType = MetricsTags.LOCATION_NODE_ID
         val tagValue = uuid()
         val meter = generateMeter(tags = listOf(Tag.of(tagType.tagName, tagValue)))
 

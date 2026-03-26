@@ -70,7 +70,7 @@ class PodRestartProbeTest : StringSpec({
 			listOf(
 				Tag.of(MetricsTags.METRIC.tagName, "restart"),
 				Tag.of(MetricsTags.POD_ID.tagName, "kraken-kraken-cloud-kraken-85fbff4d86-d9x8d"),
-				Tag.of(MetricsTags.NODE_ID.tagName, "doc-cr-app01.icure.ch")
+				Tag.of(MetricsTags.LOCATION_NODE_ID.tagName, "doc-cr-app01.icure.ch")
 			),
 			emptyList(),
 			{ 1.0 },
@@ -91,7 +91,7 @@ class PodRestartProbeTest : StringSpec({
 				Tag.of(MetricsTags.STORAGE_NAME.tagName, "tank")
 			),
 			listOf(
-				VariableTag(MetricsTags.NODE_ID) {
+				VariableTag(MetricsTags.LOCATION_NODE_ID) {
 					"couchdb-01-${
 						listOf(
 							"lim",
@@ -101,7 +101,7 @@ class PodRestartProbeTest : StringSpec({
 				},
 			),
 			{ 42.0 },
-			byTag(MetricsTags.NODE_ID)
+			byTag(MetricsTags.LOCATION_NODE_ID)
 		)
 
 		triggerGenerator.generate(1).forEach {

@@ -38,7 +38,7 @@ class DiskSpaceProbeTest : StringSpec({
 			}
 
 			group {
-				listOf(byTag(MetricsTags.NODE_ID))
+				listOf(byTag(MetricsTags.LOCATION_NODE_ID))
 			}
 
 			customAggregation {
@@ -67,20 +67,20 @@ class DiskSpaceProbeTest : StringSpec({
 
 		val triggerGenerator = GaugeGenerator(
 			{ "couchdb-01-lim-05_z_pool_used_space_percentage" },
-			listOf(Tag.of(MetricsTags.METRIC.tagName, "z_pool_used_space_percentage"), Tag.of(MetricsTags.NODE_ID.tagName, "couchdb-01-lim-05"), Tag.of(MetricsTags.STORAGE_NAME.tagName, "tank")),
+			listOf(Tag.of(MetricsTags.METRIC.tagName, "z_pool_used_space_percentage"), Tag.of(MetricsTags.LOCATION_NODE_ID.tagName, "couchdb-01-lim-05"), Tag.of(MetricsTags.STORAGE_NAME.tagName, "tank")),
 			emptyList(),
 			{ 83.0 },
-			byTag(MetricsTags.NODE_ID)
+			byTag(MetricsTags.LOCATION_NODE_ID)
 		)
 
 		val generator = GaugeGenerator(
 			{ "couchdb-01-${listOf("lim", "rbx").random()}-0${Random.nextInt(1,4)}_z_pool_used_space_percentage" },
 			listOf(Tag.of(MetricsTags.METRIC.tagName, "z_pool_used_space_percentage"), Tag.of(MetricsTags.STORAGE_NAME.tagName, "tank")),
 			listOf(
-				VariableTag(MetricsTags.NODE_ID) { "couchdb-01-${listOf("lim", "rbx").random()}-0${Random.nextInt(1,4)}" },
+				VariableTag(MetricsTags.LOCATION_NODE_ID) { "couchdb-01-${listOf("lim", "rbx").random()}-0${Random.nextInt(1,4)}" },
 			),
 			{ 42.0 },
-			byTag(MetricsTags.NODE_ID)
+			byTag(MetricsTags.LOCATION_NODE_ID)
 		)
 
 		triggerGenerator.generate(4).forEach {
