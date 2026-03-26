@@ -42,6 +42,7 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     INSTANCE_ID("instance.id", "instance_id"),
     SERVICE_NAME("service.name", "service_name"),
     REPLICA_ID("replica.id", "replica_id"),
-    IMAGE("image", "image"),
+    IMAGE_NAME("image.name", "image_name"),
+    IMAGE_VERSION("image.version", "image_version"),
     POD_PHASE("pod.phase", "pod_phase"),
 }
