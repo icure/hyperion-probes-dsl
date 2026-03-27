@@ -19,7 +19,7 @@ data class QueryStringFilter(
         throw UnsupportedDataSourceException("This filter is not compatible with a registry datasource.")
     }
     override fun toString(): String = query
-    override fun toElasticQuery(): String = """"query_string":{"query":"$query"}"""
+    override fun toElasticQuery(): String = """"query_string":{"query":"${query.replace("\"", "\\\"")}"}"""
 }
 
 /**
