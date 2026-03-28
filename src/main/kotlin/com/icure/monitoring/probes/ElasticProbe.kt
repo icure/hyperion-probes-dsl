@@ -94,7 +94,12 @@ class ElasticProbe(
         }
         return try {
             val payload = DEFAULT_JSON.parseToJsonElement(responseAsText) as JsonObject
-            return result(payload["aggregations"] as JsonObject, descriptors, emptySet()).toSet()
+            val aggregations = payload["aggregations"] as? JsonObject
+            if (aggregations == null) {
+                log.warn("No aggregations in ES response (shard failures?): url=$url, result=$responseAsText")
+                return null
+            }
+            return result(aggregations, descriptors, emptySet()).toSet()
         } catch (e: Exception) {
             log.warn("Exception occurred while parsing Elasticsearch result (url=$url, body=$body): result=$responseAsText", e)
             null
