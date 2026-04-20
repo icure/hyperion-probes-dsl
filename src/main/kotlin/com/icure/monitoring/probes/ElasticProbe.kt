@@ -69,7 +69,7 @@ class ElasticProbe(
         append("]}")
     }
 
-    override suspend fun fetchData(elasticUrl: String, elasticUsername: String?, elasticPassword: String?): Set<DescriptorsWithValue>? {
+    override suspend fun fetchData(elasticUrl: String, elasticUsername: String?, elasticPassword: String?, elasticHeaders: Map<String, String>?): Set<DescriptorsWithValue>? {
         val url = "$elasticUrl/$index/_search?size=0"
         val descriptors = descriptorsGenerator(NoopGauge(Id(UUID.randomUUID().toString(), Tags.empty(), null, null, Meter.Type.GAUGE)))
             .map { it.k }
@@ -78,6 +78,9 @@ class ElasticProbe(
             val response = client.post(url) {
                 if (!elasticUsername.isNullOrBlank() && !elasticPassword.isNullOrBlank()) {
                     basicAuth(elasticUsername, elasticPassword)
+                }
+                elasticHeaders?.forEach { (key, value) ->
+                    header(key, value)
                 }
                 contentType(ContentType.Application.Json)
                 setBody(body)
