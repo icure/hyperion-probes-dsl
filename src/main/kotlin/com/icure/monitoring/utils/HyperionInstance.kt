@@ -11,5 +11,6 @@ enum class HyperionInstance {
 	BU,
 	LOGIVAL_GW,
 	SVB,
-	K3S
+	K3S,
+	KUBE_CLOUD_1,
 }
