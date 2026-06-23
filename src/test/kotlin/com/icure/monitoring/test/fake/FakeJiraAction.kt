@@ -9,11 +9,11 @@ class FakeJiraAction : Action<JiraActionPayload> {
 
     val payloads = mutableListOf<JiraActionPayload>()
 
-    override fun execute(payload: JiraActionPayload) {
+    override suspend fun execute(payload: JiraActionPayload) {
         payloads.add(payload)
     }
 
-    override fun acceptAndDispatch(payloads: Collection<ActionPayload>, descriptors: Set<DescriptorElement>) {
+    override suspend fun acceptAndDispatch(payloads: Collection<ActionPayload>, descriptors: Set<DescriptorElement>) {
         payloads.filterIsInstance<JiraActionPayload>().forEach { execute(it) }
     }
 }

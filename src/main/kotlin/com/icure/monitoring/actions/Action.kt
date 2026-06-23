@@ -13,7 +13,7 @@ interface Action<T: ActionPayload> {
      * Executes the current action with the provided payload.
      * @param payload the payload to pass.
      */
-    fun execute(payload: T)
+    suspend fun execute(payload: T)
 
     /**
      * This function receives a collection of generic [ActionPayload] and will dispatch only the ones that can actually
@@ -21,5 +21,5 @@ interface Action<T: ActionPayload> {
      *
      * @param payloads a [Collection] of [ActionPayload].
      */
-    fun acceptAndDispatch(payloads: Collection<ActionPayload>, descriptors: Set<DescriptorElement>)
+    suspend fun acceptAndDispatch(payloads: Collection<ActionPayload>, descriptors: Set<DescriptorElement>)
 }

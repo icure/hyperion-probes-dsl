@@ -50,7 +50,7 @@ class RegistryProbe(
 	 *
 	 * @param availableActions the actions registered in the system.
 	 */
-	fun checkAndDispatch(availableActions: List<Action<ActionPayload>>) {
+	suspend fun checkAndDispatch(availableActions: List<Action<ActionPayload>>) {
 		val thresholdValue = threshold.getValue()
 		collectors.forEach { (descriptors, collector) ->
 			dispatchActionsOnTriggerActivation(

@@ -38,7 +38,7 @@ open class Probe(
 	 * @param descriptors a [Set] of [DescriptorElement]s associated to the current level.
 	 * @param availableActions all the [Action] available on the system.
 	 */
-	fun dispatchActionsOnTriggerActivation(
+	suspend fun dispatchActionsOnTriggerActivation(
 		currentLevel: Double?,
 		thresholdValue: ThresholdValue?,
 		descriptors: Set<DescriptorElement>,
