@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
  * @param config a [ProbeConfig].
  */
 class RegistryProbe(
-	private val registryId: String,
+	val registryId: String,
 	config: ProbeConfig
 ) : Probe(config) {
 
