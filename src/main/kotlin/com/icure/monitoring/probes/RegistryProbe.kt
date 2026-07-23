@@ -33,9 +33,9 @@ class RegistryProbe(
 	 * @param submittingRegistryId the id of the submitting registry.
 	 */
 	suspend fun receiveMeter(meter: Meter, submittingRegistryId: String) {
-		canTriggerActions = true
 		val extractedValue = extractor.valueOf(meter)
 		if(extractedValue != null && registryId == submittingRegistryId && filter.matches(meter)) {
+			canTriggerActions = true
 			val descriptors = descriptorsGenerator(meter)
 			collectors.getOrPut(descriptors.toSet()) { newCollector() }.addValue(extractedValue)
 		}
