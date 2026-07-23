@@ -26,109 +26,110 @@ import java.util.*
  */
 @Suppress("UNCHECKED_CAST")
 class ElasticProbe(
-    private val index: String,
-    cron: String,
-    config: ProbeConfig
+	private val index: String,
+	cron: String,
+	config: ProbeConfig
 ) : SchedulableProbe(cron, config) {
-    private val log = LoggerFactory.getLogger(javaClass)
+	private val log = LoggerFactory.getLogger(javaClass)
 
-    companion object {
-        data class DescriptorsWithValue(val descriptors: Set<DescriptorElement>, val value: Double?)
+	companion object {
+		data class DescriptorsWithValue(val descriptors: Set<DescriptorElement>, val value: Double?)
 
-        @OptIn(ExperimentalSerializationApi::class)
-        private val DEFAULT_JSON: Json = Json {
-            encodeDefaults = true
-            prettyPrint = false
-            isLenient = true
-            explicitNulls = false
-            ignoreUnknownKeys=true
-            coerceInputValues=true
-            allowSpecialFloatingPointValues=true
-            allowSpecialFloatingPointValues=true
-        }
-    }
+		@OptIn(ExperimentalSerializationApi::class)
+		private val DEFAULT_JSON: Json = Json {
+			encodeDefaults = true
+			prettyPrint = false
+			isLenient = true
+			explicitNulls = false
+			ignoreUnknownKeys=true
+			coerceInputValues=true
+			allowSpecialFloatingPointValues=true
+			allowSpecialFloatingPointValues=true
+		}
+	}
 
-    private val client = HttpClient(CIO) {
-        install(HttpTimeout) {
-            requestTimeoutMillis = 30_000
-            connectTimeoutMillis = 5_000
-            socketTimeoutMillis = 10_000
-        }
-    }
-    private val timeWindow = config.collectorProducer().let {
-        if (it is TimeWindowCollector) it.timeFrame.toMillis()
-        else throw IllegalArgumentException("Only TimeWindowCollector is supported in probe ${config.probeId}")
-    }
+	private val client = HttpClient(CIO) {
+		install(HttpTimeout) {
+			requestTimeoutMillis = 30_000
+			connectTimeoutMillis = 5_000
+			socketTimeoutMillis = 10_000
+		}
+	}
+	private val timeWindow = config.collectorProducer().let {
+		if (it is TimeWindowCollector) it.timeFrame.toMillis()
+		else throw IllegalArgumentException("Only TimeWindowCollector is supported in probe ${config.probeId}")
+	}
 
-    private fun computeQuery() = buildString {
-        append(""""bool":{"must":[""")
-        val to = System.currentTimeMillis()
-        val from = to - timeWindow
-        append("""{"range":{"$timestampField":{"format":"epoch_millis","gte":"$from","lte": "$to"}}}""")
-        append(",{${filter.toElasticQuery()}}")
-        append("]}")
-    }
+	private fun computeQuery() = buildString {
+		append(""""bool":{"must":[""")
+		val to = System.currentTimeMillis()
+		val from = to - timeWindow
+		append("""{"range":{"$timestampField":{"format":"epoch_millis","gte":"$from","lte": "$to"}}}""")
+		append(",{${filter.toElasticQuery()}}")
+		append("]}")
+	}
 
-    override suspend fun fetchData(elasticUrl: String, elasticUsername: String?, elasticPassword: String?, elasticHeaders: Map<String, String>?): Set<DescriptorsWithValue>? {
-        val url = "$elasticUrl/$index/_search?size=0"
-        val descriptors = descriptorsGenerator(NoopGauge(Id(UUID.randomUUID().toString(), Tags.empty(), null, null, Meter.Type.GAUGE)))
-            .map { it.k }
-        val body = """{"query":{${computeQuery()}},${aggs(descriptors)}}"""
-        val responseAsText = try {
-            val response = client.post(url) {
-                if (!elasticUsername.isNullOrBlank() && !elasticPassword.isNullOrBlank()) {
-                    basicAuth(elasticUsername, elasticPassword)
-                }
-                elasticHeaders?.forEach { (key, value) ->
-                    header(key, value)
-                }
-                contentType(ContentType.Application.Json)
-                setBody(body)
-            }
-            if (response.status.isSuccess()) {
-                response.bodyAsText()
-            } else {
-                log.warn("Elasticsearch query failed (url=$url, body=$body): status=${response.status}, response=${response.bodyAsText()}")
-                return null
-            }
-        } catch (e: Exception) {
-            log.warn("Elasticsearch query failed (url=$url, body=$body)", e)
-            return null
-        }
-        return try {
-            val payload = DEFAULT_JSON.parseToJsonElement(responseAsText) as JsonObject
-            val aggregations = payload["aggregations"] as? JsonObject
-            if (aggregations == null) {
-                log.warn("No aggregations in ES response (shard failures?): url=$url, result=$responseAsText")
-                return null
-            }
-            return result(aggregations, descriptors, emptySet()).toSet()
-        } catch (e: Exception) {
-            log.warn("Exception occurred while parsing Elasticsearch result (url=$url, body=$body): result=$responseAsText", e)
-            null
-        }
-    }
+	override suspend fun fetchData(elasticUrl: String, elasticUsername: String?, elasticPassword: String?, elasticHeaders: Map<String, String>?): Set<DescriptorsWithValue>? {
+		canTriggerActions = true
+		val url = "$elasticUrl/$index/_search?size=0"
+		val descriptors = descriptorsGenerator(NoopGauge(Id(UUID.randomUUID().toString(), Tags.empty(), null, null, Meter.Type.GAUGE)))
+			.map { it.k }
+		val body = """{"query":{${computeQuery()}},${aggs(descriptors)}}"""
+		val responseAsText = try {
+			val response = client.post(url) {
+				if (!elasticUsername.isNullOrBlank() && !elasticPassword.isNullOrBlank()) {
+					basicAuth(elasticUsername, elasticPassword)
+				}
+				elasticHeaders?.forEach { (key, value) ->
+					header(key, value)
+				}
+				contentType(ContentType.Application.Json)
+				setBody(body)
+			}
+			if (response.status.isSuccess()) {
+				response.bodyAsText()
+			} else {
+				log.warn("Elasticsearch query failed (url=$url, body=$body): status=${response.status}, response=${response.bodyAsText()}")
+				return null
+			}
+		} catch (e: Exception) {
+			log.warn("Elasticsearch query failed (url=$url, body=$body)", e)
+			return null
+		}
+		return try {
+			val payload = DEFAULT_JSON.parseToJsonElement(responseAsText) as JsonObject
+			val aggregations = payload["aggregations"] as? JsonObject
+			if (aggregations == null) {
+				log.warn("No aggregations in ES response (shard failures?): url=$url, result=$responseAsText")
+				return null
+			}
+			result(aggregations, descriptors, emptySet()).toSet()
+		} catch (e: Exception) {
+			log.warn("Exception occurred while parsing Elasticsearch result (url=$url, body=$body): result=$responseAsText", e)
+			null
+		}
+	}
 
-    private fun aggs(descriptors: List<String>): String {
-        return if (descriptors.isEmpty()) {
-            """"aggs":{"$id":${aggregator.toElasticAggregation(extractor)}}"""
-        } else {
-            val descriptor = descriptors.first()
-            """"aggs":{"$descriptor":{"terms":{"field":"$descriptor","size":2147483647},${aggs(descriptors.drop(1))}}}"""
-        }
-    }
+	private fun aggs(descriptors: List<String>): String {
+		return if (descriptors.isEmpty()) {
+			""""aggs":{"$id":${aggregator.toElasticAggregation(extractor)}}"""
+		} else {
+			val descriptor = descriptors.first()
+			""""aggs":{"$descriptor":{"terms":{"field":"$descriptor","size":2147483647},${aggs(descriptors.drop(1))}}}"""
+		}
+	}
 
-    private fun result(payload: JsonObject, inputDescriptors: List<String>, outputDescriptors: Set<DescriptorElement>): List<DescriptorsWithValue> {
-        return if (inputDescriptors.isEmpty()) {
-            listOf(DescriptorsWithValue(outputDescriptors, ((payload[id] as JsonObject)["value"] as JsonPrimitive).takeUnless { it is JsonNull }?.content?.toDouble()))
-        } else {
-            val currentInputDescriptor = inputDescriptors.first()
-            val innerPayloads = ((payload[currentInputDescriptor] as JsonObject)["buckets"] as List<JsonObject>)
-            return innerPayloads.flatMap { innerPayload ->
-                val descriptorValue = (innerPayload["key"] as JsonPrimitive).content
-                val newOutputDescriptors = outputDescriptors.plus(DescriptorElement(currentInputDescriptor, descriptorValue))
-                result(innerPayload, inputDescriptors.drop(1), newOutputDescriptors)
-            }
-        }
-    }
+	private fun result(payload: JsonObject, inputDescriptors: List<String>, outputDescriptors: Set<DescriptorElement>): List<DescriptorsWithValue> {
+		return if (inputDescriptors.isEmpty()) {
+			listOf(DescriptorsWithValue(outputDescriptors, ((payload[id] as JsonObject)["value"] as JsonPrimitive).takeUnless { it is JsonNull }?.content?.toDouble()))
+		} else {
+			val currentInputDescriptor = inputDescriptors.first()
+			val innerPayloads = ((payload[currentInputDescriptor] as JsonObject)["buckets"] as List<JsonObject>)
+			innerPayloads.flatMap { innerPayload ->
+				val descriptorValue = (innerPayload["key"] as JsonPrimitive).content
+				val newOutputDescriptors = outputDescriptors.plus(DescriptorElement(currentInputDescriptor, descriptorValue))
+				result(innerPayload, inputDescriptors.drop(1), newOutputDescriptors)
+			}
+		}
+	}
 }

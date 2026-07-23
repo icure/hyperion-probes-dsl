@@ -33,6 +33,7 @@ class RegistryProbe(
 	 * @param submittingRegistryId the id of the submitting registry.
 	 */
 	suspend fun receiveMeter(meter: Meter, submittingRegistryId: String) {
+		canTriggerActions = true
 		val extractedValue = extractor.valueOf(meter)
 		if(extractedValue != null && registryId == submittingRegistryId && filter.matches(meter)) {
 			val descriptors = descriptorsGenerator(meter)
