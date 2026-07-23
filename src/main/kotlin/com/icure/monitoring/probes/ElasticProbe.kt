@@ -70,7 +70,6 @@ class ElasticProbe(
 	}
 
 	override suspend fun fetchData(elasticUrl: String, elasticUsername: String?, elasticPassword: String?, elasticHeaders: Map<String, String>?): Set<DescriptorsWithValue>? {
-		canTriggerActions = true
 		val url = "$elasticUrl/$index/_search?size=0"
 		val descriptors = descriptorsGenerator(NoopGauge(Id(UUID.randomUUID().toString(), Tags.empty(), null, null, Meter.Type.GAUGE)))
 			.map { it.k }

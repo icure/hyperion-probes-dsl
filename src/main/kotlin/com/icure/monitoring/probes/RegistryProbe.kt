@@ -24,6 +24,15 @@ class RegistryProbe(
 	private val newCollector = config.collectorProducer
 
 	/**
+	 * To avoid dispatching the same probe multiple times on the same data, this will act as a switch on the actions.
+	 * Actions can be fired only if this value is true, and firing an action will make the value false.
+	 * The value will become true again only if new data is added to the probe (via receive meter on registry probes and
+	 * via fetch data on elastic probes).
+	 */
+	@Volatile
+	private var canTriggerActions: Boolean = true
+
+	/**
 	 * Receives a [Meter] from a registry and store its value if:
 	 * - the meter has a non-null value.
 	 * - the registry that is submitting them meter has the same ID as the one defined when instantiating the probe.
@@ -52,14 +61,17 @@ class RegistryProbe(
 	 * @param availableActions the actions registered in the system.
 	 */
 	suspend fun checkAndDispatch(availableActions: List<Action<ActionPayload>>) {
-		val thresholdValue = threshold.getValue()
-		collectors.forEach { (descriptors, collector) ->
-			dispatchActionsOnTriggerActivation(
-				aggregator.aggregate(collector),
-				thresholdValue,
-				descriptors,
-				availableActions
-			)
+		if (canTriggerActions) {
+			canTriggerActions = false
+			val thresholdValue = threshold.getValue()
+			collectors.forEach { (descriptors, collector) ->
+				dispatchActionsOnTriggerActivation(
+					aggregator.aggregate(collector),
+					thresholdValue,
+					descriptors,
+					availableActions
+				)
+			}
 		}
 	}
 

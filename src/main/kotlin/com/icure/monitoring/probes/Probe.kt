@@ -31,15 +31,6 @@ open class Probe(
 	}
 
 	/**
-	 * To avoid dispatching the same probe multiple times on the same data, this will act as a switch on the actions.
-	 * Actions can be fired only if this value is true, and firing an action will make the value false.
-	 * The value will become true again only if new data is added to the probe (via receive meter on registry probes and
-	 * via fetch data on elastic probes).
-	 */
-	@Volatile
-	protected var canTriggerActions: Boolean = true
-
-	/**
 	 * Checks if the value passed as parameter activates the trigger. In this case, dispatch the actions defined in the
 	 * configuration.
 	 * @param currentLevel the value that may activate the trigger.
@@ -54,12 +45,10 @@ open class Probe(
 		availableActions: List<Action<ActionPayload>>
 	) {
 		if (
-			canTriggerActions &&
 			currentLevel != null &&
 			thresholdValue != null &&
 			trigger(currentLevel, thresholdValue)
 		) {
-			canTriggerActions = false
 			val payloads = actionGenerators.map { it.generate(currentLevel, thresholdValue, descriptors) }
 			availableActions.forEach { it.acceptAndDispatch(payloads, descriptors) }
 		}
