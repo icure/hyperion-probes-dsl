@@ -33,7 +33,17 @@ class ElasticProbe(
 	private val log = LoggerFactory.getLogger(javaClass)
 
 	companion object {
-		data class DescriptorsWithValue(val descriptors: Set<DescriptorElement>, val value: Double?)
+		/**
+         * Bucket key assigned to documents that lack a grouping field. Without `missing`, an ES
+         * `terms` aggregation silently drops any document that has no value for the bucketed field,
+         * so a probe grouping by e.g. `namespace`/`replica_id`/`service_name` never sees the
+         * documents that legitimately don't carry those tags (node-level disks, node/pod network
+         * counters, …) — and therefore never fires for them. Bucketing them under this key keeps
+         * them in the result instead of losing them.
+         */
+        const val MISSING_BUCKET_KEY = "__NA__"
+
+        data class DescriptorsWithValue(val descriptors: Set<DescriptorElement>, val value: Double?)
 
 		@OptIn(ExperimentalSerializationApi::class)
 		private val DEFAULT_JSON: Json = Json {
@@ -52,7 +62,7 @@ class ElasticProbe(
 		install(HttpTimeout) {
 			requestTimeoutMillis = 30_000
 			connectTimeoutMillis = 5_000
-			socketTimeoutMillis = 10_000
+			socketTimeoutMillis = 15_000
 		}
 	}
 	private val timeWindow = config.collectorProducer().let {
@@ -114,7 +124,8 @@ class ElasticProbe(
 			""""aggs":{"$id":${aggregator.toElasticAggregation(extractor)}}"""
 		} else {
 			val descriptor = descriptors.first()
-			""""aggs":{"$descriptor":{"terms":{"field":"$descriptor","size":2147483647},${aggs(descriptors.drop(1))}}}"""
+			// `missing` keeps documents that lack this field instead of silently dropping them (see MISSING_BUCKET_KEY).
+            """"aggs":{"$descriptor":{"terms":{"field":"$descriptor","size":2147483647,"missing":"$MISSING_BUCKET_KEY"},${aggs(descriptors.drop(1))}}}"""
 		}
 	}
 
