@@ -11,12 +11,12 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class TypeIsFilter(
-    val type: Meter.Type
+	val type: Meter.Type
 ) : SimpleFilter() {
 
-    override fun matches(meter: Meter): Boolean = meter.id.type == type
-    override fun toString(): String = "type is $type"
-    override fun toElasticQuery(): String = "\"match\":{\"type\":\"$type\"}"
+	override fun matches(meter: Meter): Boolean = meter.id.type == type
+	override fun toString(): String = "type is $type"
+	override fun toElasticQuery(): String = "\"match\":{\"type\":\"$type\"}"
 }
 
 /**
