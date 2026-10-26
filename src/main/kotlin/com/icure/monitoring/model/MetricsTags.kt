@@ -47,4 +47,6 @@ enum class MetricsTags(val tagName: String, val queryValue: String) {
     // IMAGE_NAME("image.name", "image_name"),
     SERVICE_VERSION("service.version", "service_version"),
     POD_PHASE("pod.phase", "pod_phase"),
+    MONA_MODEL("mona.model", "mona_model"),
+    MONA_ACCOUNT("mona.account", "mona_account"),
 }
