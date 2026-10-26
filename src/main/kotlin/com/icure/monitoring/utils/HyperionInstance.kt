@@ -13,4 +13,5 @@ enum class HyperionInstance {
 	SVB,
 	K3S,
 	KUBE_CLOUD_1,
+	MONA
 }
